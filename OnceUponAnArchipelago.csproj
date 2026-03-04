@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<AssemblyName>OnceUponAnArchipelago</AssemblyName>
+		<Product>Once Upon An Archipelago</Product>
+		<Version>0.1.0</Version>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<LangVersion>latest</LangVersion>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<RestoreAdditionalProjectSources>
+			https://api.nuget.org/v3/index.json;
+			https://nuget.bepinex.dev/v3/index.json;
+			https://nuget.samboy.dev/v3/index.json
+		</RestoreAdditionalProjectSources>
+		<RootNamespace>OnceUponAnArchipelago</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.0" />
+		<PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.*" IncludeAssets="compile" />
+		<PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
+	</ItemGroup>
+	<ItemGroup>
+		<Reference Include="OnceUponAKatamari">
+			<HintPath>libs/Assembly-CSharp.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>libs/UnityEngine.CoreModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath>libs/UnityEngine.UI</HintPath>
+		</Reference>
+		<Reference Include="Il2Cppmscorlib">
+			<HintPath>libs/Il2Cppmscorlib.dll</HintPath>
+		</Reference>
+		<Reference Include="TextMeshPro">
+			<HintPath>libs/Unity.TextMeshPro.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+</Project>
