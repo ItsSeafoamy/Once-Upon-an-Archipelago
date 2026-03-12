@@ -283,4 +283,17 @@ public class Patcher {
 			data._messageEvent[i] = true;
 		}
 	}
+
+	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.Update))]
+	private static void MainGameManager_Update_Postfix(MainGameManager __instance) {
+		if (__instance.IsPlayerInitiated
+			&& __instance.GetInventoryItem() == eInstageItemType.NoItem
+			&& Plugin.items.Count > 0
+			&& __instance.StageIdx != 51
+			&& __instance.StageIdx != 20)
+		{
+			eInstageItemType item = Plugin.items.Dequeue();
+			__instance.SetInventoryItem(item);
+		}
+	}
 }

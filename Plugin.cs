@@ -23,6 +23,7 @@ public class Plugin : BasePlugin {
 	public static List<int> levels = [];
 	public static List<int> cousins = [];
 	public static List<int> presents = [];
+	public static Queue<eInstageItemType> items = [];
 
 	public static int planets = 0;
 	public static int planetsNeeded;
@@ -41,6 +42,7 @@ public class Plugin : BasePlugin {
 	public const int PRESENT_ID_OFFSET = 3_000;
 	public const int PLANET_ID_OFFSET = 4_000;
 	public const int FILLER_ID_OFFSET = 5_000;
+	public const int FREEBIE_ID_OFFSET = 6_000;
 
 	public override void Load() {
 		// Plugin startup logic

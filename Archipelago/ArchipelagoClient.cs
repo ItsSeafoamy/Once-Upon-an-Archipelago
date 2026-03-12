@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net.Sockets;
 using System.Net.WebSockets;
+using App.KatamariSin;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
@@ -148,8 +149,11 @@ public class ArchipelagoClient {
 		int id = (int) receivedItem.ItemId;
 		Plugin.Logger.LogInfo($"Received item: {receivedItem.ItemName} ({id}) from {receivedItem.Player.Name}");
 
-		if (id >= Plugin.FILLER_ID_OFFSET) return;
-		else if (id >= Plugin.PLANET_ID_OFFSET) {
+		if (id >= Plugin.FREEBIE_ID_OFFSET) {
+			Plugin.items.Enqueue((eInstageItemType)(id - Plugin.FREEBIE_ID_OFFSET));
+		} else if (id >= Plugin.FILLER_ID_OFFSET) {
+			return;
+		} else if (id >= Plugin.PLANET_ID_OFFSET) {
 			Plugin.planets++;
 			Plugin.SetPlanetsText(Plugin.planets, Plugin.planetsNeeded);
 
