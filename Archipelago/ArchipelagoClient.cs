@@ -80,7 +80,7 @@ public class ArchipelagoClient {
 			ServerData.SetupSession(success.SlotData, session.RoomState.Seed);
 			Authenticated = true;
 
-			DeathLinkHandler = new(session.CreateDeathLinkService(), ServerData.SlotName);
+			DeathLinkHandler = new(session.CreateDeathLinkService(), ServerData.SlotName, (long) success.SlotData["death_link"] == 1);
 			session.Locations.CompleteLocationChecksAsync(ServerData.CheckedLocations.ToArray());
 			outText = $"Successfully connected to {ServerData.Uri} as {ServerData.SlotName}!";
 
@@ -133,6 +133,14 @@ public class ArchipelagoClient {
 
 	public void Goal() {
 		session.SetGoalAchieved();
+	}
+
+	public void CheckDeathLink(MainGameManager man) {
+		DeathLinkHandler.KillPlayer(man);
+	}
+
+	public void SendDeathLink() {
+		DeathLinkHandler.SendDeathLink();
 	}
 
 	/// <summary>

@@ -286,14 +286,26 @@ public class Patcher {
 
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.Update))]
 	private static void MainGameManager_Update_Postfix(MainGameManager __instance) {
-		if (__instance.IsPlayerInitiated
-			&& __instance.GetInventoryItem() == eInstageItemType.NoItem
-			&& Plugin.items.Count > 0
-			&& __instance.StageIdx != 51
-			&& __instance.StageIdx != 20)
-		{
+		// don't interfere with the tutorial or that hole...
+		if (__instance.StageIdx == 20 || __instance.StageIdx == 51) return;
+
+		// Handle items
+		if (__instance.IsPlayerInitiated && __instance.GetInventoryItem() == eInstageItemType.NoItem && Plugin.items.Count > 0) {
 			eInstageItemType item = Plugin.items.Dequeue();
 			__instance.SetInventoryItem(item);
+		}
+
+		// Handle deathlink
+		Plugin.archipelagoClient.CheckDeathLink(__instance);
+	}
+
+	[HarmonyPrefix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.EndGame))]
+	private static void MainGameManager_EndGame_Prefix(MainGameManager __instance, ref bool force) {
+		// force is true when killed by deathlink
+		if (force) {
+			force = false;
+		} else if (!__instance.IsStageClear()) {
+			Plugin.archipelagoClient.SendDeathLink();
 		}
 	}
 }

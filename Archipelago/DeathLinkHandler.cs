@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using App.KatamariSin;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using BepInEx;
 
@@ -57,14 +58,15 @@ public class DeathLinkHandler {
 	/// can be called when in a valid state to kill the player, dequeueing and immediately killing the player with a
 	/// message if we have a death link in the queue
 	/// </summary>
-	public void KillPlayer() {
+	public void KillPlayer(MainGameManager man) {
 		try {
 			if (deathLinks.Count < 1) return;
 
 			var deathLink = deathLinks.Dequeue();
+			deathLinks.Clear();
 			var cause = deathLink.Cause.IsNullOrWhiteSpace() ? GetDeathLinkCause(deathLink) : deathLink.Cause;
 
-			//TODO kill the player
+			man.EndGame(true);
 			Plugin.Logger.LogMessage(cause);
 		} catch (Exception e) {
 			Plugin.Logger.LogError(e);
