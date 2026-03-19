@@ -21,10 +21,11 @@ The following locations are checks:
 
 ## Mod Installation
 1. Download the Bleeding Edge build of [BepInEx 6](https://builds.bepinex.dev/projects/bepinex_be).
-Choose "BepInEx Unity (IL2CPP) for Windows (x64) game".
+Choose **"BepInEx Unity (IL2CPP) for Windows (x64) game"**. You should still select the Windows version, even if you're not using Windows.
 2. Extract the contents into the game's root folder. By default, this is `C:\Program Files (x86)\Steam\steamapps\common\OnceUponaKATAMARI`.
 3. Download the Archipelago plugin from [releases](https://github.com/ItsSeafoamy/Once-Upon-an-Archipelago/releases), and extract its contents into `BepInEx/plugins`.
-4. Start Once Upon a Katamari to generate the necessary configuration files, and then close the game.
+4. For **Unix** (Linux, Mac, SteamOS) users only: add `WINEDLLOVERRIDES="winhttp.dll=n,b" %command%` to the launch options on Steam, under properties.
+5. Start Once Upon a Katamari to generate the necessary configuration files, and then close the game.
 
 ## Joining a Multiworld
 1. Open `BepInEx/config/OnceUponAnArchipelago.cfg`, and enter the correct server address, slot name and, if applicable,
