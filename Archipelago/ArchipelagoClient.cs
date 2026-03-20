@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Sockets;
 using System.Net.WebSockets;
@@ -43,6 +44,7 @@ public class ArchipelagoClient {
 	/// </summary>
 	private void SetupSession() {
 		session.Items.ItemReceived += OnItemReceived;
+		session.Locations.CheckedLocationsUpdated += OnLocationChecked;
 		session.Socket.ErrorReceived += OnSessionErrorReceived;
 		session.Socket.SocketClosed += OnSessionSocketClosed;
 	}
@@ -175,6 +177,14 @@ public class ArchipelagoClient {
 		} else if (id >= Plugin.LEVEL_ID_OFFSET) {
 			Plugin.levels.Add(id - Plugin.LEVEL_ID_OFFSET);
 			Plugin.levelNames[id - Plugin.LEVEL_ID_OFFSET] = receivedItem.ItemName;
+		}
+	}
+
+	private void OnLocationChecked(ReadOnlyCollection<long> newCheckedLocations) {
+		ServerData.CheckedLocations.AddRange(newCheckedLocations);
+		
+		foreach (long loc in newCheckedLocations) {
+			Plugin.Logger.LogInfo($"Checked location: {loc}");
 		}
 	}
 

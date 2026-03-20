@@ -1,9 +1,11 @@
 ﻿using App.KatamariSin;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using OnceUponAnArchipelago.Archipelago;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace OnceUponAnArchipelago;
 
@@ -18,7 +20,48 @@ public class Patcher {
 	// Select Scroll
 	[HarmonyPostfix, HarmonyPatch(typeof(MissionItem), nameof(MissionItem.CheckRelease))]
 	private static void MissionItem_CheckRelease_Postfix(ref bool __result, MissionItem __instance) {
-		__result = Plugin.levels.Contains((int)__instance._eStageID);
+		if ((int) __instance._eStageID < 1) __result = true;
+		else __result = Plugin.levels.Contains((int) __instance._eStageID);
+	}
+
+	[HarmonyPostfix, HarmonyPatch(typeof(SubjectListDataSet), nameof(SubjectListDataSet.SetMyList))]
+	private static void SubjectListDataSet_SetMyList_Postfix(SubjectListDataSet __instance, MissionItem item) {
+		if (!item._isRelease || (int) item._eStageID < 1) return;
+
+		if (Plugin.randomizePresents) {
+			if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.PRESENT_ID_OFFSET + item._presentID)) {
+				__instance._presentImages.color = Color.white;
+			} else {
+				__instance._presentImages.color = new Color(1, 1, 1, 0.5f);
+			}
+
+			__instance._presentCanvas.SetActive(true);
+		}
+
+		if (Plugin.randomizeCousins) {
+			for (int i = 0; i < item._itokoID.Length; i++) {
+				int itokoId = item._itokoID[i] - 1;
+				Image image = __instance._itokoImages[i];
+
+				if (itokoId == 98) {
+					image.enabled = false;
+				} else {
+					image.enabled = true;
+
+					if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.COUSIN_ID_OFFSET + itokoId)) {
+						Sprite sprite = __instance._listData.GetCustomSpritesData(itokoId + 1);
+						image.sprite = sprite;
+						image.color = Color.white;
+					} else {
+						Sprite sprite = __instance._listData.GetSpriteIcon;
+						image.sprite = sprite;
+						image.color = new Color(1, 1, 1, 0.5f);
+					}
+				}
+			}
+
+			__instance._itokoCanvas.SetActive(true);
+		}
 	}
 
 	// Reorder stage list so unlocked levels appear before locked ones
