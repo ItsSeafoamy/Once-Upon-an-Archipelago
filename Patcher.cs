@@ -131,6 +131,13 @@ public class Patcher {
 		return false;
 	}
 
+	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaFanMessage), nameof(SelectHirobaFanMessage.SetMessage))]
+	private static void SelectHirobaFanMessage_SetMessage_Postfix(SelectHirobaFanMessage __instance, string messageID) {
+		if (messageID == "FAN_M02_1_") {
+			__instance._fanMessages[0] = __instance._fanMessages[1];
+		}
+	}
+
 	// allows skipping the tutorial
 	// makes it possible to permanently lose access to the cousin check
 /*	[HarmonyPostfix, HarmonyPatch(typeof(MainGameUIManager), nameof(MainGameUIManager.IsTutorialStep7))]
