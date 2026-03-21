@@ -7,6 +7,7 @@ using OnceUponAnArchipelago.Archipelago;
 using System.Collections.Generic;
 using BepInEx.Configuration;
 using TMPro;
+using OnceUponAnArchipelago.Patcher;
 
 namespace OnceUponAnArchipelago;
 
@@ -65,7 +66,10 @@ public class Plugin : BasePlugin {
 
 		Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
-		Harmony.CreateAndPatchAll(typeof(Patcher));
+		Harmony.CreateAndPatchAll(typeof(InGamePatcher));
+		Harmony.CreateAndPatchAll(typeof(SelectHirobaPatcher));
+		Harmony.CreateAndPatchAll(typeof(UIPatcher));
+		Harmony.CreateAndPatchAll(typeof(MiscPatcher));
 	}
 
 	public static void SetApConnectionText(string text) {

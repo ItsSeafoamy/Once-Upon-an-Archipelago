@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net.Sockets;
 using System.Net.WebSockets;
 using App.KatamariSin;
 using Archipelago.MultiClient.Net;
