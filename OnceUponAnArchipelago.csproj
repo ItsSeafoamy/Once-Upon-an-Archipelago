@@ -37,5 +37,8 @@
 		<Reference Include="TextMeshPro">
 			<HintPath>libs/Unity.TextMeshPro.dll</HintPath>
 		</Reference>
+		<Reference Include="UnityEngine.AssetBundleModule">
+			<HintPath>libs/UnityEngine.AssetBundleModule.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 </Project>

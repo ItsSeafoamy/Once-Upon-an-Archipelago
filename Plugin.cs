@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using BepInEx.Configuration;
 using TMPro;
 using OnceUponAnArchipelago.Patcher;
+using UnityEngine;
 
 namespace OnceUponAnArchipelago;
 
@@ -20,6 +21,7 @@ public class Plugin : BasePlugin {
 	public static string apConnectionText = "<color=red>Archipelago: Not Connected</color>";
 
 	public static TextMeshProUGUI planetsText;
+	public static Sprite clearSprite;
 
 	public static List<int> levels = [];
 	public static List<int> cousins = [];

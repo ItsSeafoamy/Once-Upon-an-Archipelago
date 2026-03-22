@@ -23,7 +23,7 @@ public class SelectHirobaPatcher {
 		else __result = Plugin.levels.Contains((int)__instance._eStageID);
 	}
 
-	// show what cousins/presents/crowns you've checked in the select scroll
+	// show what checks you've done in the select scroll
 	[HarmonyPostfix, HarmonyPatch(typeof(SubjectListDataSet), nameof(SubjectListDataSet.SetMyList))]
 	private static void SubjectListDataSet_SetMyList_Postfix(SubjectListDataSet __instance, MissionItem item) {
 		item._isRelease = item.CheckRelease();
@@ -80,6 +80,16 @@ public class SelectHirobaPatcher {
 			}
 
 			__instance._collectiveCanvas.SetActive(true);
+		}
+
+		Image clearImage = __instance._itokoImages[3];
+		if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.LEVEL_ID_OFFSET + (int)item._eStageID)) {
+			clearImage.enabled = true;
+
+			clearImage.sprite = Plugin.clearSprite;
+			clearImage.color = Color.white;
+		} else {
+			clearImage.enabled = false;
 		}
 	}
 
