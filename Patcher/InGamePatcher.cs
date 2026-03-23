@@ -76,7 +76,11 @@ public class InGamePatcher {
 		if (__instance.StageIdx == 20 || __instance.StageIdx == 51) return;
 
 		// Handle items
-		if (__instance.IsPlayerInitiated && __instance.GetInventoryItem() == eInstageItemType.NoItem && Plugin.items.Count > 0) {
+		if (__instance.IsPlayerInitiated 
+			&& __instance.GetInventoryItem() == eInstageItemType.NoItem
+			&& __instance._itemEffectTimer <= 0f
+			&& Plugin.items.Count > 0
+		) {
 			eInstageItemType item = Plugin.items.Dequeue();
 			__instance.SetInventoryItem(item);
 		}
@@ -126,7 +130,7 @@ public class InGamePatcher {
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.ActivateItemEffect))]
 	private static void MainGameManager_ActivateItemEffect_Postfix(MainGameManager __instance) {
 		if (usingMushroom) {
-			__instance._itemEffectTimer = 10f;
+			__instance._itemEffectTimer = 3f;
 			usingMushroom = false;
 		}
 	}
