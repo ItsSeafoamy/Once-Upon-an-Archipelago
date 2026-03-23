@@ -1,11 +1,14 @@
 ﻿using App.KatamariSin;
 using HarmonyLib;
+using System.Reflection.Metadata;
+using UnityEngine;
 
 namespace OnceUponAnArchipelago.Patcher;
 
 public class InGamePatcher {
 
 	private static bool usingMushroom = false;
+	private static float spiderTimer = 0f;
 
 	// detects crown collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameCollectiveItem), nameof(MainGameCollectiveItem.Collected))]
@@ -78,6 +81,29 @@ public class InGamePatcher {
 			__instance.SetInventoryItem(item);
 		}
 
+		// Spider trap handler
+		if (spiderTimer > 0) {
+			spiderTimer -= Time.deltaTime;
+
+			if (spiderTimer <= 0) {
+				__instance.RequestSpiderDamageDemo_End();
+				spiderTimer = 0f;
+			}
+		}
+
+		// Handle traps
+		if (__instance.IsPlayerInitiated && Plugin.traps.Count > 0 && spiderTimer <= 0) {
+			int trapId = Plugin.traps.Dequeue();
+
+			if (trapId == (int)eInstageItemType.Spider) {
+				__instance.RequestSpiderDamageDemo_Start();
+				spiderTimer = 10f;
+			} else if (trapId == (int)eInstageItemType.Tarai) { // washpan
+				__instance.RequestTaraiDamageDemo();
+				__instance.DebugSubKatamariSize((int)(__instance.KatamariSize * 0.1f));
+			}
+		}
+
 		// Handle deathlink
 		Plugin.archipelagoClient.CheckDeathLink(__instance);
 	}
@@ -102,6 +128,15 @@ public class InGamePatcher {
 		if (usingMushroom) {
 			__instance._itemEffectTimer = 10f;
 			usingMushroom = false;
+		}
+	}
+
+	// Spider speed multiplier
+	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.GetItemMultiplier))]
+	private static void MainGameCore_GetItemMultiplier_Postfix(ref float __result, eInstageItemType checkItem) {
+		// Game always uses Drink (Rocket) multiplier for player speed, regardless if they're actually using a rocket or not
+		if (checkItem == eInstageItemType.Drink && spiderTimer > 0) {
+			__result = 0.5f;
 		}
 	}
 

@@ -158,7 +158,9 @@ public class ArchipelagoClient {
 		int id = (int) receivedItem.ItemId;
 		Plugin.Logger.LogInfo($"Received item: {receivedItem.ItemName} ({id}) from {receivedItem.Player.Name}");
 
-		if (id >= Plugin.FREEBIE_ID_OFFSET) {
+		if (id >= Plugin.TRAP_IP_OFFSET) {
+			Plugin.traps.Enqueue(id - Plugin.TRAP_IP_OFFSET);
+		} else if (id >= Plugin.FREEBIE_ID_OFFSET) {
 			Plugin.items.Enqueue((eInstageItemType)(id - Plugin.FREEBIE_ID_OFFSET));
 		} else if (id >= Plugin.FILLER_ID_OFFSET) {
 			return;
