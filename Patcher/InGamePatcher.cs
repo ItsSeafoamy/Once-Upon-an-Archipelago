@@ -159,7 +159,6 @@ public class InGamePatcher {
 		data._progression = 34; // how far along the story you are. not sure if this is actually needed anymore
 		data.Big1Start1st = true; // allows leaving ALAP1 on first playthrough
 		data._firstSelectHiroba = true; // sets the SS Prince as having already been repaired
-		data.FirstCharaCustom = true; // skips the forced go check out the customization
 		data._stageIndex = (int)SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
 
 		// marks all events as having already been done
