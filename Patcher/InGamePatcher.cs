@@ -5,6 +5,8 @@ namespace OnceUponAnArchipelago.Patcher;
 
 public class InGamePatcher {
 
+	private static bool usingMushroom = false;
+
 	// detects crown collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameCollectiveItem), nameof(MainGameCollectiveItem.Collected))]
 	private static void MainGameCollectiveItem_Collected_Postfix(MainGameCollectiveItem __instance) {
@@ -78,6 +80,29 @@ public class InGamePatcher {
 
 		// Handle deathlink
 		Plugin.archipelagoClient.CheckDeathLink(__instance);
+	}
+
+	// Mushroom Item
+	[HarmonyPrefix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.ActivateItemEffect))]
+	private static void MainGameManager_ActivateItemEffect_Prefix(MainGameManager __instance) {
+		if (__instance.GetInventoryItem() == eInstageItemType.Mushroom) {
+			__instance.AddKatamariSize((int)(__instance.KatamariSize * 0.1f));
+
+			usingMushroom = true;
+		} else if (__instance.GetInventoryItem() == eInstageItemType.SP_Mushroom) {
+			__instance.AddKatamariSize((int)(__instance.KatamariSize * 0.2f));
+
+			usingMushroom = true;
+		}
+	}
+
+	// Fix for mushroom model immediately disappearing on use
+	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.ActivateItemEffect))]
+	private static void MainGameManager_ActivateItemEffect_Postfix(MainGameManager __instance) {
+		if (usingMushroom) {
+			__instance._itemEffectTimer = 10f;
+			usingMushroom = false;
+		}
 	}
 
 	// deathlink
