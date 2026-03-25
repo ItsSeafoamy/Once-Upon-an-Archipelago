@@ -25,15 +25,13 @@ public class MiscPatcher {
 
 	// Load the katamari sprite which gets used as the clear icon in the select scroll
 	[HarmonyPostfix, HarmonyPatch(typeof(AssetBundle), nameof(AssetBundle.LoadFromFileAsync), argumentTypes: [typeof(string), typeof(uint)])]
-	private static void AssetBundle_LoadAssetAsync_Postfix(string path, AssetBundleCreateRequest __result) {
+	private static void AssetBundle_LoadFromFileAsync_Postfix(string path, AssetBundleCreateRequest __result) {
 		if (path.Contains("duplicateassetisolation2_assets_all_")) {
 			var action = DelegateSupport.ConvertDelegate<Il2CppSystem.Action<AsyncOperation>>((System.Action<AsyncOperation>)((v) => {
 				AssetBundle bundle = __result.assetBundle;
 				AssetBundleRequest req = bundle.LoadAssetAsync("Assets/GameResource/Miscs/UI/Core/Core_02_Tutorial.png", Il2CppType.Of<Sprite>());
 				
 				var assetAction = DelegateSupport.ConvertDelegate<Il2CppSystem.Action<AsyncOperation>>((System.Action<AsyncOperation>)((v) => {
-					Plugin.Logger.LogInfo(req.asset.name);
-
 					Sprite sprite = req.asset.TryCast<Sprite>();
 					Plugin.clearSprite = sprite;
 				}));

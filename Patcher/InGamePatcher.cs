@@ -1,6 +1,5 @@
 ﻿using App.KatamariSin;
 using HarmonyLib;
-using System.Reflection.Metadata;
 using UnityEngine;
 
 namespace OnceUponAnArchipelago.Patcher;
@@ -70,6 +69,13 @@ public class InGamePatcher {
 		return false;
 	}
 
+	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.Start))]
+	private static void MainGameManager_Start_Postfix(MainGameManager __instance) {
+		if (Plugin.itemsToSkip == -1) {
+			Plugin.LoadArchipelagoData();
+		}
+	}
+
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.Update))]
 	private static void MainGameManager_Update_Postfix(MainGameManager __instance) {
 		// don't interfere with the tutorial or that hole...
@@ -82,7 +88,15 @@ public class InGamePatcher {
 			&& Plugin.items.Count > 0
 		) {
 			eInstageItemType item = Plugin.items.Dequeue();
-			__instance.SetInventoryItem(item);
+
+			if (Plugin.itemsToSkip > 0) {
+				Plugin.itemsToSkip--;
+			} else {
+				__instance.SetInventoryItem(item);
+
+				Plugin.usedItemCount++;
+				Plugin.SaveArchipelagoData();
+			}
 		}
 
 		// Spider trap handler
@@ -99,12 +113,19 @@ public class InGamePatcher {
 		if (__instance.IsPlayerInitiated && Plugin.traps.Count > 0 && spiderTimer <= 0) {
 			int trapId = Plugin.traps.Dequeue();
 
-			if (trapId == (int)eInstageItemType.Spider) {
-				__instance.RequestSpiderDamageDemo_Start();
-				spiderTimer = 10f;
-			} else if (trapId == (int)eInstageItemType.Tarai) { // washpan
-				__instance.RequestTaraiDamageDemo();
-				__instance.DebugSubKatamariSize((int)(__instance.KatamariSize * 0.1f));
+			if (Plugin.trapsToSkip > 0) {
+				Plugin.trapsToSkip--;
+			} else {
+				if (trapId == (int)eInstageItemType.Spider) {
+					__instance.RequestSpiderDamageDemo_Start();
+					spiderTimer = 10f;
+				} else if (trapId == (int)eInstageItemType.Tarai) { // washpan
+					__instance.RequestTaraiDamageDemo();
+					__instance.DebugSubKatamariSize((int)(__instance.KatamariSize * 0.1f));
+				}
+
+				Plugin.usedTrapCount++;
+				Plugin.SaveArchipelagoData();
 			}
 		}
 
@@ -172,5 +193,7 @@ public class InGamePatcher {
 		for (int i = 0; i < data._messageEvent.Count; i++) {
 			data._messageEvent[i] = true;
 		}
+
+		Plugin.DeleteArchipelagoData();
 	}
 }

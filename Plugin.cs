@@ -9,6 +9,8 @@ using BepInEx.Configuration;
 using TMPro;
 using OnceUponAnArchipelago.Patcher;
 using UnityEngine;
+using System.IO;
+using System.Linq;
 
 namespace OnceUponAnArchipelago;
 
@@ -26,8 +28,14 @@ public class Plugin : BasePlugin {
 	public static List<int> levels = [];
 	public static List<int> cousins = [];
 	public static List<int> presents = [];
+
 	public static Queue<eInstageItemType> items = [];
+	public static int usedItemCount = 0;
+	public static int itemsToSkip = -1;
+
 	public static Queue<int> traps = [];
+	public static int usedTrapCount = 0;
+	public static int trapsToSkip = -1;
 
 	public static int planets = 0;
 	public static int planetsNeeded;
@@ -49,6 +57,8 @@ public class Plugin : BasePlugin {
 	public const int FREEBIE_ID_OFFSET = 6_000;
 	public const int TRAP_IP_OFFSET = 7_000;
 
+	private static string ARCHIPELAGO_SAVE_FOLDER = Application.dataPath + "/../ArchipelagoData/";
+
 	public override void Load() {
 		// Plugin startup logic
 		Logger = Log;
@@ -68,6 +78,10 @@ public class Plugin : BasePlugin {
 
 		levelNames[51] = "That Hole...";
 
+		if (!File.Exists(ARCHIPELAGO_SAVE_FOLDER)) {
+			Directory.CreateDirectory(ARCHIPELAGO_SAVE_FOLDER);
+		}
+
 		Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 
 		Harmony.CreateAndPatchAll(typeof(InGamePatcher));
@@ -83,5 +97,60 @@ public class Plugin : BasePlugin {
 
 	public static void SetPlanetsText(int planetsOwned, int planetsNeeded) {
 		planetsText?.SetText($"Planets: {planetsOwned} / {planetsNeeded}");
+	}
+
+	public static void SaveArchipelagoData() {
+		string path = ARCHIPELAGO_SAVE_FOLDER + SaveDataController.Instance.CurrentUseSlot + ".txt";
+
+		Logger.LogInfo($"Saving Archipelago data to {path}");
+
+		File.WriteAllLines(path, [
+			"items=" + usedItemCount,
+			"traps=" + usedTrapCount
+		]);
+	}
+
+	public static void LoadArchipelagoData() {
+		string path = ARCHIPELAGO_SAVE_FOLDER + SaveDataController.Instance.CurrentUseSlot + ".txt";
+
+		Logger.LogInfo($"Loading Archipelago data from {path}");
+
+		usedItemCount = 0;
+		itemsToSkip = 0;
+		usedTrapCount = 0;
+		trapsToSkip = 0;
+
+		if (File.Exists(path)) {
+			File.ReadAllLines(path).ToList().ForEach(line => {
+				string[] parts = line.Split('=');
+				if (parts.Length == 2) {
+					string key = parts[0];
+					string value = parts[1];
+
+					if (key == "items") {
+						usedItemCount = int.Parse(value);
+						itemsToSkip = usedItemCount;
+					} else if (key == "traps") {
+						usedTrapCount = int.Parse(value);
+						trapsToSkip = usedTrapCount;
+					}
+				}
+			});
+		} 
+	}
+
+	public static void DeleteArchipelagoData() {
+		string path = ARCHIPELAGO_SAVE_FOLDER + SaveDataController.Instance.CurrentUseSlot + ".txt";
+
+		Logger.LogInfo($"Deleting Archipelago data at {path}");
+
+		if (File.Exists(path)) {
+			File.Delete(path);
+		}
+
+		usedItemCount = 0;
+		itemsToSkip = 0;
+		usedTrapCount = 0;
+		trapsToSkip = 0;
 	}
 }
