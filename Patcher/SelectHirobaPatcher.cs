@@ -118,10 +118,17 @@ public class SelectHirobaPatcher {
 
 		Plugin.fansToStages[__instance.StageID] = reordered;
 
+		List<int> specialFans = [28, 32, 34, 40];
+
 		foreach (int i in __instance.GetStagesID) {
 			if (stages.Contains(i)) {
-				__instance.SetReleaseActiveNormal();
-				return;
+				if (specialFans.Contains(__instance.ObjectId)) {
+					__instance.SetReleaseActiveNormal();
+					return;
+				} else {
+					__instance.SetRelease();
+					return;
+				}
 			}
 		}
 
@@ -191,12 +198,17 @@ public class SelectHirobaPatcher {
 				2 => stageId == 26,
 				_ => false
 			};
-		}
+		} 
 	}
 
 	private static bool IsStageMarkedClear(int stageId, int a, int b) {
-		if (Plugin.levels.Contains(a) && Plugin.levels.Contains(b)) return stageId == a;
-		else return false;
+		if (Plugin.levels.Contains(a) && Plugin.levels.Contains(b)) {
+			if (a == 6) {
+				GlobalSaveData.instance._forBranching = true; // fix for As AFAP Ghost Ship
+			}
+
+			return stageId == a;
+		} else return false;
 	}
 
 	// sets a fan message for ALAP1
