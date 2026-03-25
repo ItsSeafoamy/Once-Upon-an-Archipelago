@@ -22,10 +22,10 @@ public class InGamePatcher {
 	// detects present collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.RequestPresentMessage))]
 	private static void MainGameManager_RequestPresentMessage_Postfix(MainGameManager __instance) {
-		Plugin.Logger.LogInfo($"Collected Present: {__instance._presentRolled}");
+		Plugin.Logger.LogInfo($"Collected Present: {GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID}");
 
 		if (Plugin.randomizePresents) {
-			Plugin.archipelagoClient.SendCheck(__instance._presentRolled + Plugin.PRESENT_ID_OFFSET);
+			Plugin.archipelagoClient.SendCheck(GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID + Plugin.PRESENT_ID_OFFSET);
 		}
 	}
 
