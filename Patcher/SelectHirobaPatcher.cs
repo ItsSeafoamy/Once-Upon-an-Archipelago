@@ -172,24 +172,31 @@ public class SelectHirobaPatcher {
 	private static void GlobalSaveData_IsClearTargetStage_Postfix(ref bool __result, StarIDEnum starID) {
 		int stageId = SelectHirobaManager.ConvertStageID(starID);
 
-		if (stageId == 4 || stageId == 19) __result = Plugin.levels.Contains(4) && Plugin.levels.Contains(19);
-		else if (stageId == 11 || stageId == 31) __result = Plugin.levels.Contains(11) && Plugin.levels.Contains(31);
-		else if (stageId == 5 || stageId == 21) __result = Plugin.levels.Contains(5) && Plugin.levels.Contains(21);
-		else if (stageId == 15 || stageId == 24) __result = Plugin.levels.Contains(15) && Plugin.levels.Contains(24);
-		else if (stageId == 34 || stageId == 36) __result = Plugin.levels.Contains(34) && Plugin.levels.Contains(36);
-		else if (stageId == 56 || stageId == 61) __result = Plugin.levels.Contains(56) && Plugin.levels.Contains(61);
-		else if (stageId == 6 || stageId == 42) __result = Plugin.levels.Contains(6) && Plugin.levels.Contains(42);
-		else if (stageId == 53 || stageId == 54) __result = Plugin.levels.Contains(53) && Plugin.levels.Contains(54);
+		if (stageId == 4 || stageId == 19) __result = IsStageMarkedClear(stageId, 4, 19);
+		else if (stageId == 5 || stageId == 21) __result = IsStageMarkedClear(stageId, 5, 21);
+		else if (stageId == 6 || stageId == 42) __result = IsStageMarkedClear(stageId, 6, 42);
+		else if (stageId == 11 || stageId == 31) __result = IsStageMarkedClear(stageId, 11, 31);
+		else if (stageId == 15 || stageId == 24) __result = IsStageMarkedClear(stageId, 15, 24);
+		else if (stageId == 34 || stageId == 36) __result = IsStageMarkedClear(stageId, 34, 36);
+		else if (stageId == 53 || stageId == 54) __result = IsStageMarkedClear(stageId, 53, 54);
+		else if (stageId == 56 || stageId == 61) __result = IsStageMarkedClear(stageId, 56, 61);
 		else if (stageId == 26 || stageId == 29 || stageId == 30) {
-			if (Plugin.levels.Contains(26) && Plugin.levels.Contains(29) && Plugin.levels.Contains(30)) __result = true;
-			else if (Plugin.levels.Contains(26) && (Plugin.levels.Contains(29) || Plugin.levels.Contains(30))) {
-				__result = stageId == 26;
-			} else if (Plugin.levels.Contains(29) && Plugin.levels.Contains(30)) {
-				__result = stageId == 29;
-			} else {
-				__result = false;
-			}
+			int owned = 0;
+			if (Plugin.levels.Contains(26)) owned++;
+			if (Plugin.levels.Contains(29)) owned++;
+			if (Plugin.levels.Contains(30)) owned++;
+
+			__result = owned switch {
+				3 => true,
+				2 => stageId == 26,
+				_ => false
+			};
 		}
+	}
+
+	private static bool IsStageMarkedClear(int stageId, int a, int b) {
+		if (Plugin.levels.Contains(a) && Plugin.levels.Contains(b)) return stageId == a;
+		else return false;
 	}
 
 	// sets a fan message for ALAP1
