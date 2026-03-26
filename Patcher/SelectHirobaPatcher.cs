@@ -28,9 +28,9 @@ public class SelectHirobaPatcher {
 	private static void SubjectListDataSet_SetMyList_Postfix(SubjectListDataSet __instance, MissionItem item) {
 		item._isRelease = item.CheckRelease();
 
-		if (!item._isRelease || (int)item._eStageID < 1) return;
+		if (!item._isRelease || (int)item._eStageID < 1 || (int)item._eStageID == 51) return;
 
-		if (Plugin.randomizePresents) {
+		if (Plugin.randomizePresents && item._presentID >= 0) {
 			if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.PRESENT_ID_OFFSET + item._presentID)) {
 				__instance._presentImages.color = Color.white;
 			} else {
@@ -198,7 +198,7 @@ public class SelectHirobaPatcher {
 				2 => stageId == 26,
 				_ => false
 			};
-		} 
+		}
 	}
 
 	private static bool IsStageMarkedClear(int stageId, int a, int b) {
