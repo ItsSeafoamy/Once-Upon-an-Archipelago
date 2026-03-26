@@ -11,6 +11,8 @@ The following items are shuffled into the item pool:
 - Cousins
 - Presents
 - Planets
+- Freebies (Rocket, Magnet, Timer, Sonar, Mushroom & Ice Axe)
+- Traps (Washpan & Spider Traps)
 - Stardust (filler)
 
 The following locations are checks:
@@ -23,7 +25,7 @@ The following locations are checks:
 1. Download the Bleeding Edge build of [BepInEx 6](https://builds.bepinex.dev/projects/bepinex_be).
 Choose **"BepInEx Unity (IL2CPP) for Windows (x64) game"**. You should still select the Windows version, even if you're not using Windows.
 2. Extract the contents into the game's root folder. By default, this is `C:\Program Files (x86)\Steam\steamapps\common\OnceUponaKATAMARI`.
-3. Download the Archipelago plugin from [releases](https://github.com/ItsSeafoamy/Once-Upon-an-Archipelago/releases), and extract its contents into `BepInEx/plugins`.
+3. Download the Once Upon an Archipelago plugin from [releases](https://github.com/ItsSeafoamy/Once-Upon-an-Archipelago/releases), and extract its contents into `BepInEx/plugins`.
 4. For **Unix** (Linux, Mac, SteamOS) users only: add `WINEDLLOVERRIDES="winhttp.dll=n,b" %command%` to the launch options on Steam, under properties.
 5. Start Once Upon a Katamari to generate the necessary configuration files, and then close the game.
 
@@ -39,12 +41,14 @@ There is currently no way to reconnect whilst the game is running.
 6. Start a brand new save file.
 
 ## Additional Info
-- The apworld can be found in [releases](https://github.com/ItsSeafoamy/Once-Upon-an-Archipelago/releases), alongside a default YAML. You can also use the Options Creator in the
-Archipelago Client to create your player YAML.
+- The apworld can be found in [releases](https://github.com/ItsSeafoamy/Once-Upon-an-Archipelago/releases).
 - The source code for the apworld can be found [here](https://github.com/ItsSeafoamy/Archipelago-OUAKatamari/tree/ouakatamari/worlds/ouakatamari).
 - A setting exists in the plugin's config called "easyFinale", which makes the final level "That Hole..." clearable by only rolling up one object. This bypasses the vanilla requirement
 to clear lots of levels first. This setting is enabled by default, and logic assumes it remains enabled.
 - In vanilla, only one cousin appears at a time in a stage, requiring the player to play through the stage multiple times. In Archipelago, all cousins will appear in the same playthrough.
+- The Mushroom freebie increases your katamari's size by 10% normally, or 20% for its super variant. The Ice Axe freebie allows you to scale walls much higher and faster. These freebies
+must be enabled in your YAML if you wish to use them.
+- The washpan trap decreases your katamari's size by 10%. The spider trap decreases your roll speed by 50% for 10 seconds.
 
 ## Known Issues
 - Sometimes, when levels are unlocked, they can get stuck in the sky. This is just a visual bug, you can still play the level by going to the location the level should be. 
