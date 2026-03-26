@@ -8,6 +8,7 @@ using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using Archipelago.MultiClient.Net.Enums;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.Packets;
+using LibCpp2IL;
 namespace OnceUponAnArchipelago.Archipelago;
 
 public class ArchipelagoClient {
@@ -81,7 +82,7 @@ public class ArchipelagoClient {
 			ServerData.SetupSession(success.SlotData, session.RoomState.Seed);
 			Authenticated = true;
 
-			DeathLinkHandler = new(session.CreateDeathLinkService(), ServerData.SlotName, (long) success.SlotData["death_link"] == 1);
+			DeathLinkHandler = new(session.CreateDeathLinkService(), ServerData.SlotName, (long) success.SlotData.GetOrDefault("death_link", 0L) == 1);
 			session.Locations.CompleteLocationChecksAsync(ServerData.CheckedLocations.ToArray());
 			outText = $"Successfully connected to {ServerData.Uri} as {ServerData.SlotName}!";
 
