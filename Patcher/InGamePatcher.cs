@@ -39,6 +39,12 @@ public class InGamePatcher {
 		}
 	}
 
+	// fix for mushrooms deleting other freebie pickups
+	[HarmonyPrefix, HarmonyPatch(typeof(MainGameItemBox), nameof(MainGameItemBox.Collected))]
+	private static bool MainGameItemBox_Collected_Prefix() {
+		return GlobalManager.Instance.GameMan._itemEffectTimer <= 0f;
+	}
+
 	// detects stage clear
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.MakeStageCleared))]
 	private static void MainGameManager_MakeStageCleared_Postfix(MainGameManager __instance) {
