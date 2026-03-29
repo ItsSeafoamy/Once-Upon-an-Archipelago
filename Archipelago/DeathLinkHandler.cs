@@ -49,9 +49,7 @@ public class DeathLinkHandler {
 	private void DeathLinkReceived(DeathLink deathLink) {
 		deathLinks.Enqueue(deathLink);
 
-		Plugin.Logger.LogDebug(deathLink.Cause.IsNullOrWhiteSpace()
-			? $"Received Death Link from: {deathLink.Source}"
-			: deathLink.Cause);
+		Plugin.Logger.LogInfo("Queing deathlink: " + (deathLink.Cause.IsNullOrWhiteSpace() ? $"{deathLink.Source} died" : deathLink.Cause));
 	}
 
 	/// <summary>
@@ -62,12 +60,12 @@ public class DeathLinkHandler {
 		try {
 			if (deathLinks.Count < 1) return;
 
-			var deathLink = deathLinks.Dequeue();
+			DeathLink deathLink = deathLinks.Dequeue();
 			deathLinks.Clear();
-			var cause = deathLink.Cause.IsNullOrWhiteSpace() ? GetDeathLinkCause(deathLink) : deathLink.Cause;
+			string cause = "Triggering deathlink: " + (deathLink.Cause.IsNullOrWhiteSpace() ? $"{deathLink.Source} died" : deathLink.Cause);
 
 			man.EndGame(true);
-			Plugin.Logger.LogMessage(cause);
+			Plugin.Logger.LogInfo(cause);
 		} catch (Exception e) {
 			Plugin.Logger.LogError(e);
 		}
@@ -79,7 +77,7 @@ public class DeathLinkHandler {
 	/// <param name="deathLink">death link object to get relevant info from</param>
 	/// <returns></returns>
 	private string GetDeathLinkCause(DeathLink deathLink) {
-		return $"Received death from {deathLink.Source}";
+		return $"{deathLink.Source} died";
 	}
 
 	/// <summary>

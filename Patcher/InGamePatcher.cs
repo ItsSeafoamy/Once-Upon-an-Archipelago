@@ -78,15 +78,23 @@ public class InGamePatcher {
 
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.Update))]
 	private static void MainGameManager_Update_Postfix(MainGameManager __instance) {
-		// don't interfere with the tutorial or that hole...
-		if (__instance.StageIdx == 20 || __instance.StageIdx == 51) return;
+		// make sure we're in a safe state to mess with
+		if (__instance.StageIdx == 20 || __instance.StageIdx == 51
+			|| __instance.IsInDebug
+			|| __instance.IsInDemo
+			|| __instance._isInPause
+			|| __instance.IsInConfirm
+			|| __instance.MainUI.IsTipsActive()
+			|| !__instance.isStageLoaded
+			|| __instance.isStageLoading
+			|| !__instance.IsPlayerInitiated
+			|| __instance.IsInDemoCamera
+			|| __instance._isInDemoFade
+			|| __instance.IsInRestartWait
+		) return;
 
 		// Handle items
-		if (__instance.IsPlayerInitiated 
-			&& __instance.GetInventoryItem() == eInstageItemType.NoItem
-			&& __instance._itemEffectTimer <= 0f
-			&& Plugin.items.Count > 0
-		) {
+		if (__instance.GetInventoryItem() == eInstageItemType.NoItem && __instance._itemEffectTimer <= 0f && Plugin.items.Count > 0) {
 			eInstageItemType item = Plugin.items.Dequeue();
 
 			if (Plugin.itemsToSkip > 0) {
@@ -110,7 +118,7 @@ public class InGamePatcher {
 		}
 
 		// Handle traps
-		if (__instance.IsPlayerInitiated && Plugin.traps.Count > 0 && spiderTimer <= 0) {
+		if (Plugin.traps.Count > 0 && spiderTimer <= 0) {
 			int trapId = Plugin.traps.Dequeue();
 
 			if (Plugin.trapsToSkip > 0) {
