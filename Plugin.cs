@@ -56,6 +56,7 @@ public class Plugin : BasePlugin {
 	public const int FILLER_ID_OFFSET = 5_000;
 	public const int FREEBIE_ID_OFFSET = 6_000;
 	public const int TRAP_IP_OFFSET = 7_000;
+	public const int COLLECTION_ID_OFFSET = 100_000;
 
 	private static string ARCHIPELAGO_SAVE_FOLDER = Application.dataPath + "/../ArchipelagoData/";
 

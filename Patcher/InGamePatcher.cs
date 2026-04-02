@@ -1,5 +1,7 @@
 ﻿using App.KatamariSin;
+using BepInEx;
 using HarmonyLib;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace OnceUponAnArchipelago.Patcher;
@@ -37,6 +39,23 @@ public class InGamePatcher {
 		if (Plugin.randomizeCousins) {
 			Plugin.archipelagoClient.SendCheck(ItokoID + Plugin.COUSIN_ID_OFFSET);
 		}
+	}
+
+	// collectionsanity
+	[HarmonyPostfix, HarmonyPatch(typeof(MainGameMonoBase), nameof(MainGameMonoBase.Rolled))]
+	private static void MainGameMonoBase_Rolled_Postfix(MainGameMonoBase __instance) {
+		int listId = __instance.gameMan.CheckListIndexFromMonoID(__instance.MonoID);
+		MonoInfo.Param param = __instance.gameMan.MonoData.list[listId];
+
+		int id;
+		if (param.SyncMonoID != -1) {
+			id = param.SyncMonoID;
+		} else {
+			id = param.id;
+		}
+
+		Plugin.Logger.LogInfo($"Rolled {id} ({GlobalManager.instance.MonoNameTable.GetText($"DATA_NM_{id:D5}")})");
+		Plugin.archipelagoClient.SendCheck(id + Plugin.COLLECTION_ID_OFFSET);
 	}
 
 	// fix for mushrooms deleting other freebie pickups
