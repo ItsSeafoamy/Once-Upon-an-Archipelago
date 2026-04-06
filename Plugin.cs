@@ -43,6 +43,7 @@ public class Plugin : BasePlugin {
 	public static bool randomizeCousins;
 	public static bool randomizePresents;
 	public static bool randomizeCrowns;
+	public static bool collectionsanity;
 	public static bool easyFinale;
 
 	public static Dictionary<int, List<int>> fansToStages = [];
