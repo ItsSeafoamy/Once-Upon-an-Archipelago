@@ -185,7 +185,7 @@ public class InGamePatcher {
 		// force is true when killed by deathlink
 		if (force) {
 			force = false;
-		} else if (!__instance.IsStageClear()) {
+		} else if (!__instance.IsStageClear() && !__instance._hasCleared) {
 			Plugin.archipelagoClient.SendDeathLink();
 		}
 	}
