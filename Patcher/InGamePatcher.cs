@@ -199,6 +199,7 @@ public class InGamePatcher {
 		data.Big1Start1st = true; // allows leaving ALAP1 on first playthrough
 		data._firstSelectHiroba = true; // sets the SS Prince as having already been repaired
 		data._stageIndex = (int)SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
+		data.FirstGotoSelectEmaki = 1; // makes the S.S. Prince menu option available without needing to go there first
 
 		// marks all events as having already been done
 		// prevents the king forcing you to go into certain eras on a whim

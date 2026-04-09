@@ -42,4 +42,11 @@ public class MiscPatcher {
 			__result.add_completed(action);
 		}
 	}
+
+	// _stageReleasableEventStack defaults to size 10
+	// but there's more than 10 releasables in Edo Japan, which would cause a softlock if you unlock more than 10 at once
+	[HarmonyPrefix, HarmonyPatch(typeof(EventController), nameof(EventController.Start))]
+	private static void EventController_Start_Prefix(EventController __instance) {
+		__instance._stageReleasableEventStack = new int[20];
+	}
 }
