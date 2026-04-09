@@ -227,20 +227,4 @@ public class SelectHirobaPatcher {
 			__instance._stages = Plugin.fansToStages[__instance._myStageID].ToArray();
 		}
 	}
-
-	// disable katamariball
-	[HarmonyPrefix, HarmonyPatch(typeof(SportKatamariBase), nameof(SportKatamariBase.CheckObjectRelease))]
-	private static bool SportKatamariBase_CheckObjectRelease_Prefix() {
-		return false;
-	}
-
-	[HarmonyPrefix, HarmonyPatch(typeof(SportKatamariBase), nameof(SportKatamariBase.ObjectRelease))]
-	private static bool SportKatamariBase_ObjectRelease_Prefix() {
-		return false;
-	}
-
-	[HarmonyPrefix, HarmonyPatch(typeof(SportKatamariBase), nameof(SportKatamariBase.SetReleaseEvent))]
-	private static bool SportKatamariBase_SetReleaseEvent_Prefix() {
-		return false;
-	}
 }
