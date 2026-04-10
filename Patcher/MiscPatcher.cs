@@ -43,10 +43,12 @@ public class MiscPatcher {
 		}
 	}
 
-	// _stageReleasableEventStack defaults to size 10
-	// but there's more than 10 releasables in Edo Japan, which would cause a softlock if you unlock more than 10 at once
-	[HarmonyPrefix, HarmonyPatch(typeof(EventController), nameof(EventController.Start))]
-	private static void EventController_Start_Prefix(EventController __instance) {
-		__instance._stageReleasableEventStack = new int[20];
+	[HarmonyPostfix, HarmonyPatch(typeof(UISaveTitleFlow), nameof(UISaveTitleFlow.Update))]
+	private static void UISaveTitleFlow_Update_Postfix(UISaveTitleFlow __instance) {
+		if (__instance.NextSceneName == "SelectHirobaTutorialDemo" && Plugin.skipTutorial) {
+			__instance.NextSceneName = "SelectHiroba";
+
+			Plugin.SetInitialFlags();
+		}
 	}
 }

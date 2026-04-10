@@ -186,6 +186,13 @@ public class SelectHirobaPatcher {
 		return false;
 	}
 
+	// _stageReleasableEventStack defaults to size 10
+	// but there's more than 10 releasables in Edo Japan, which would cause a softlock if you unlock more than 10 at once
+	[HarmonyPrefix, HarmonyPatch(typeof(EventController), nameof(EventController.Start))]
+	private static void EventController_Start_Prefix(EventController __instance) {
+		__instance._stageReleasableEventStack = new int[20];
+	}
+
 	// disables plaza blocks
 	[HarmonyPrefix, HarmonyPatch(typeof(SelectHirobaBlockEventObject), nameof(SelectHirobaBlockEventObject.Start))]
 	private static void SelectHirobaBlockEventObject_Start_Prefix(SelectHirobaBlockEventObject __instance) {
@@ -198,7 +205,8 @@ public class SelectHirobaPatcher {
 	private static void GlobalSaveData_IsClearTargetStage_Postfix(ref bool __result, StarIDEnum starID) {
 		int stageId = SelectHirobaManager.ConvertStageID(starID);
 
-		if (stageId == 4 || stageId == 19) __result = IsStageMarkedClear(stageId, 4, 19);
+		if (stageId == 20) __result = true;
+		else if (stageId == 4 || stageId == 19) __result = IsStageMarkedClear(stageId, 4, 19);
 		else if (stageId == 5 || stageId == 21) __result = IsStageMarkedClear(stageId, 5, 21);
 		else if (stageId == 6 || stageId == 42) __result = IsStageMarkedClear(stageId, 6, 42);
 		else if (stageId == 11 || stageId == 31) __result = IsStageMarkedClear(stageId, 11, 31);

@@ -94,6 +94,7 @@ public class ArchipelagoClient {
 			Plugin.randomizeCousins = (long) success.SlotData["randomize_cousins"] == 1;
 			Plugin.randomizePresents = (long) success.SlotData["randomize_presents"] == 1;
 			Plugin.randomizeCrowns = (long) success.SlotData["randomize_crowns"] == 1;
+			Plugin.skipTutorial = (long) success.SlotData.GetOrDefault("skip_tutorial", 0L) == 1;
 
 			Plugin.Logger.LogMessage(outText);
 

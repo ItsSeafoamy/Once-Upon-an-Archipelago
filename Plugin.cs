@@ -43,6 +43,7 @@ public class Plugin : BasePlugin {
 	public static bool randomizeCousins;
 	public static bool randomizePresents;
 	public static bool randomizeCrowns;
+	public static bool skipTutorial;
 	public static bool easyFinale;
 
 	public static Dictionary<int, List<int>> fansToStages = [];
@@ -152,5 +153,26 @@ public class Plugin : BasePlugin {
 		itemsToSkip = 0;
 		usedTrapCount = 0;
 		trapsToSkip = 0;
+	}
+
+	public static void SetInitialFlags() {
+		GlobalSaveData data = GlobalManager.instance.glbSave;
+
+		data._progression = 34; // how far along the story you are. not sure if this is actually needed anymore
+		data.Big1Start1st = true; // allows leaving ALAP1 on first playthrough
+		data._firstSelectHiroba = true; // sets the SS Prince as having already been repaired
+		data._stageIndex = (int)SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
+		data.FirstGotoSelectEmaki = 1; // makes the S.S. Prince menu option available without needing to go there first
+		data.SetPalyMovie(true, 33); // sets the tutorial movie as having already been played so we can skip the tutorial
+
+		// marks all events as having already been done
+		// prevents the king forcing you to go into certain eras on a whim
+		// also skips the repair the S.S. Prince event
+		// and more importantly, prevents softlocks that can happen when you receive certain/too many levels at the wrong/same time
+		for (int i = 0; i < data._messageEvent.Count; i++) {
+			data._messageEvent[i] = true;
+		}
+
+		DeleteArchipelagoData();
 	}
 }

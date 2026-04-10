@@ -193,22 +193,6 @@ public class InGamePatcher {
 	// runs when the tutorial first plays
 	[HarmonyPostfix, HarmonyPatch(typeof(UITutorialManager), nameof(UITutorialManager.Start))]
 	private static void UITutorialManager_Start_Postfix(ref UITutorialManager __instance) {
-		GlobalSaveData data = __instance.globalMan.glbSave;
-
-		data._progression = 34; // how far along the story you are. not sure if this is actually needed anymore
-		data.Big1Start1st = true; // allows leaving ALAP1 on first playthrough
-		data._firstSelectHiroba = true; // sets the SS Prince as having already been repaired
-		data._stageIndex = (int)SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
-		data.FirstGotoSelectEmaki = 1; // makes the S.S. Prince menu option available without needing to go there first
-
-		// marks all events as having already been done
-		// prevents the king forcing you to go into certain eras on a whim
-		// also skips the repair the S.S. Prince event
-		// and more importantly, prevents softlocks that can happen when you receive certain/too many levels at the wrong/same time
-		for (int i = 0; i < data._messageEvent.Count; i++) {
-			data._messageEvent[i] = true;
-		}
-
-		Plugin.DeleteArchipelagoData();
+		Plugin.SetInitialFlags();
 	}
 }
