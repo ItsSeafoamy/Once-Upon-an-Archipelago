@@ -55,7 +55,6 @@ public class InGamePatcher {
 				id = param.id;
 			}
 
-			Plugin.Logger.LogInfo($"Rolled {id} ({GlobalManager.instance.MonoNameTable.GetText($"DATA_NM_{id:D5}")})");
 			Plugin.archipelagoClient.SendCheck(id + Plugin.COLLECTION_ID_OFFSET);
 		}
 	}
