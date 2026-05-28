@@ -1,5 +1,7 @@
 ﻿using App.KatamariSin;
+using BepInEx;
 using HarmonyLib;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace OnceUponAnArchipelago.Patcher;
@@ -12,9 +14,9 @@ public class InGamePatcher {
 	// detects crown collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameCollectiveItem), nameof(MainGameCollectiveItem.Collected))]
 	private static void MainGameCollectiveItem_Collected_Postfix(MainGameCollectiveItem __instance) {
-		Plugin.Logger.LogInfo($"Collected Crown: {__instance.name} ({__instance.CollectID})");
-
 		if (Plugin.randomizeCrowns) {
+			Plugin.Logger.LogInfo($"Collected Crown: {__instance.name} ({__instance.CollectID})");
+
 			Plugin.archipelagoClient.SendCheck(__instance.CollectID + Plugin.CROWN_ID_OFFSET);
 		}
 	}
@@ -22,9 +24,9 @@ public class InGamePatcher {
 	// detects present collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.RequestPresentMessage))]
 	private static void MainGameManager_RequestPresentMessage_Postfix(MainGameManager __instance) {
-		Plugin.Logger.LogInfo($"Collected Present: {GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID}");
-
 		if (Plugin.randomizePresents) {
+			Plugin.Logger.LogInfo($"Collected Present: {GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID}");
+
 			Plugin.archipelagoClient.SendCheck(GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID + Plugin.PRESENT_ID_OFFSET);
 		}
 	}
@@ -32,10 +34,29 @@ public class InGamePatcher {
 	// detects cousin collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.SetItokoRolled))]
 	private static void MainGameManager_SetItokoRolled_Postfix(int ItokoID) {
-		Plugin.Logger.LogInfo($"Collected cousin: {ItokoID}");
-
 		if (Plugin.randomizeCousins) {
+			Plugin.Logger.LogInfo($"Collected cousin: {ItokoID}");
+
 			Plugin.archipelagoClient.SendCheck(ItokoID + Plugin.COUSIN_ID_OFFSET);
+		}
+	}
+
+	// collectionsanity
+	[HarmonyPostfix, HarmonyPatch(typeof(MainGameMonoBase), nameof(MainGameMonoBase.Rolled))]
+	private static void MainGameMonoBase_Rolled_Postfix(MainGameMonoBase __instance) {
+		if (Plugin.collectionsanity) {
+			int listId = __instance.gameMan.CheckListIndexFromMonoID(__instance.MonoID);
+			MonoInfo.Param param = __instance.gameMan.MonoData.list[listId];
+
+			int id;
+			if (param.SyncMonoID != -1) {
+				id = param.SyncMonoID;
+			} else {
+				id = param.id;
+			}
+
+			Plugin.Logger.LogInfo($"Rolled {id} ({GlobalManager.instance.MonoNameTable.GetText($"DATA_NM_{id:D5}")})");
+			Plugin.archipelagoClient.SendCheck(id + Plugin.COLLECTION_ID_OFFSET);
 		}
 	}
 
