@@ -15,7 +15,7 @@ public class ArchipelagoClient {
 	public const string APVersion = "0.6.6";
 	private const string Game = "Once Upon a Katamari";
 
-	public static bool Authenticated;
+	public static bool authenticated;
 	private bool attemptingConnection;
 
 	public static ArchipelagoData ServerData = new();
@@ -27,7 +27,7 @@ public class ArchipelagoClient {
 	/// </summary>§
 	/// <returns></returns>
 	public void Connect() {
-		if (Authenticated || attemptingConnection) return;
+		if (authenticated || attemptingConnection) return;
 
 		try {
 			session = ArchipelagoSessionFactory.CreateSession(ServerData.Uri);
@@ -78,28 +78,60 @@ public class ArchipelagoClient {
 		string outText;
 		if (result.Successful) {
 			var success = (LoginSuccessful) result;
+			var slotData = success.SlotData;
 
-			ServerData.SetupSession(success.SlotData, session.RoomState.Seed);
-			Authenticated = true;
+			ServerData.SetupSession(slotData, session.RoomState.Seed);
+			authenticated = true;
 
-			DeathLinkHandler = new(session.CreateDeathLinkService(), ServerData.SlotName, (long) success.SlotData.GetOrDefault("death_link", 0L) == 1);
-			session.Locations.CompleteLocationChecksAsync(ServerData.CheckedLocations.ToArray());
-			outText = $"Successfully connected to {ServerData.Uri} as {ServerData.SlotName}!";
+			if (!slotData.ContainsKey("mod_version")) {
+				// pre v0.3
+				DeathLinkHandler = new(session.CreateDeathLinkService(), ServerData.SlotName, (long)slotData.GetOrDefault("death_link", 0L) == 1);
+				session.Locations.CompleteLocationChecksAsync([.. ServerData.CheckedLocations]);
+				outText = $"Successfully connected to {ServerData.Uri} as {ServerData.SlotName}!";
 
-			long planetCount = (long) success.SlotData["number_of_planets"];
-			long planetRequirement = (long) success.SlotData["planets_requirement"];
+				long planetCount = (long)slotData["number_of_planets"];
+				long planetRequirement = (long)slotData["planets_requirement"];
 
-			Plugin.planetsNeeded = (int) Math.Max(1, Math.Floor(planetCount * (planetRequirement / 100f)));
-			Plugin.planetsOnClear = (long) success.SlotData["planets_on_clear"] == 1;
-			Plugin.randomizeCousins = (long) success.SlotData["randomize_cousins"] == 1;
-			Plugin.randomizePresents = (long) success.SlotData["randomize_presents"] == 1;
-			Plugin.randomizeCrowns = (long) success.SlotData["randomize_crowns"] == 1;
-			Plugin.skipTutorial = (long) success.SlotData.GetOrDefault("skip_tutorial", 0L) == 1;
-			Plugin.collectionsanity = (long) success.SlotData.GetOrDefault("collection_sanity", 0L) == 1;
+				Plugin.planetsNeeded = (int)Math.Max(1, Math.Floor(planetCount * (planetRequirement / 100f)));
+				Plugin.planetsOnClear = (long)slotData["planets_on_clear"] == 1;
+				Plugin.randomizeCousins = (long)slotData["randomize_cousins"] == 1;
+				Plugin.randomizePresents = (long)slotData["randomize_presents"] == 1;
+				Plugin.randomizeCrowns = (long)slotData["randomize_crowns"] == 1;
+				Plugin.skipTutorial = (long)slotData.GetOrDefault("skip_tutorial", 0L) == 1;
 
-			Plugin.Logger.LogMessage(outText);
+				Plugin.Logger.LogMessage(outText);
 
-			Plugin.SetApConnectionText($"Archipelago: Connected");
+				Plugin.SetApConnectionText($"Archipelago: Connected");
+			} else if ((long)slotData["mod_version"] == 0) {
+				DeathLinkHandler = new(session.CreateDeathLinkService(), ServerData.SlotName, (bool)slotData["death_link"]);
+				session.Locations.CompleteLocationChecksAsync([.. ServerData.CheckedLocations]);
+				outText = $"Successfully connected to {ServerData.Uri} as {ServerData.SlotName}!";
+
+				long planetCount = (long)slotData["number_of_planets"];
+				long planetRequirement = (long)slotData["planet_requirement"];
+
+				Plugin.planetsNeeded = (int)planetRequirement;
+				Plugin.planetsOnClear = (bool)slotData["planets_on_clear"];
+				Plugin.randomizeCousins = (bool)slotData["randomize_cousins"];
+				Plugin.randomizePresents = (bool)slotData["randomize_presents"];
+				Plugin.randomizeCrowns = (bool)slotData["randomize_crowns"];
+				Plugin.skipTutorial = (bool)slotData["skip_tutorial"];
+
+				Plugin.Logger.LogMessage(outText);
+
+				Plugin.SetApConnectionText($"Archipelago: Connected");
+			} else if ((long)slotData["mod_version"] > 0) {
+				// apworld is too new
+
+				string requiredVersion = (string)slotData["world_version"];
+
+				outText = $"The mod is out of date! Please update to v{requiredVersion} or newer!";
+				Plugin.Logger.LogError(outText);
+
+				Disconnect();
+
+				Plugin.SetApConnectionText($"<color=red>Archipelago: Mod Outdated. Update to v{requiredVersion}</color>");
+			}
 		} else {
 			var failure = (LoginFailure)result;
 			outText = $"Failed to connect to {ServerData.Uri} as {ServerData.SlotName}.";
@@ -107,11 +139,9 @@ public class ArchipelagoClient {
 
 			Plugin.Logger.LogError(outText);
 
-			Authenticated = false;
 			Disconnect();
 		}
 
-		Plugin.Logger.LogMessage(outText);
 		attemptingConnection = false;
 	}
 
@@ -122,7 +152,7 @@ public class ArchipelagoClient {
 		Plugin.Logger.LogDebug("disconnecting from server...");
 		session?.Socket.DisconnectAsync();
 		session = null;
-		Authenticated = false;
+		authenticated = false;
 
 		Plugin.SetApConnectionText("<color=red>Archipelago: Not Connected</color>");
 	}
