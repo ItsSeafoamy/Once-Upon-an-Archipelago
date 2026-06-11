@@ -16,6 +16,8 @@
 		<RootNamespace>OnceUponAnArchipelago</RootNamespace>
 	</PropertyGroup>
 
+	<Import Project="Paths.props" Condition="Exists('Paths.props')" />
+
 	<ItemGroup>
 		<PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.0" />
 		<PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-be.*" IncludeAssets="compile" />
@@ -41,4 +43,9 @@
 			<HintPath>libs/UnityEngine.AssetBundleModule.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GameDir)/BepInEx/plugins/OnceUponAnArchipelago/" />
+		<Exec Command="start steam://rungameid/1880620" />
+	</Target>
 </Project>
