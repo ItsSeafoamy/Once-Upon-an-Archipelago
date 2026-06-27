@@ -22,8 +22,7 @@ The following locations are checks:
 - Crowns
 
 ## Mod Installation
-1. Download the Bleeding Edge build of [BepInEx 6](https://builds.bepinex.dev/projects/bepinex_be).
-Choose **"BepInEx Unity (IL2CPP) for Windows (x64) game"**. You should still select the Windows version, even if you're not using Windows.
+1. Download the Bleeding Edge build #783 of [BepInEx 6](https://builds.bepinex.dev/projects/bepinex_be/783/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.783%2Bc58c42d.zip).
 2. Extract the contents into the game's root folder. By default, this is `C:\Program Files (x86)\Steam\steamapps\common\OnceUponaKATAMARI`.
 3. Download the Once Upon an Archipelago plugin from [releases](https://github.com/ItsSeafoamy/Once-Upon-an-Archipelago/releases), and extract its contents into `BepInEx/plugins`.
 4. For **Unix** (Linux, Mac, SteamOS) users only: add `WINEDLLOVERRIDES="winhttp.dll=n,b" %command%` to the launch options on Steam, under properties.
@@ -54,3 +53,6 @@ must be enabled in your YAML if you wish to use them.
 - Sometimes, when levels are unlocked, they can get stuck in the sky. This is just a visual bug, you can still play the level by going to the location the level should be. 
 This can also be fixed by reloading the scene (by selecting a stage in this era using the Select Scroll).
 - The game cannot (re)connect to the server after launch. You must restart the game to (re)connect.
+- When starting a level, the crowns, cousins and presents shown as (un)collected may be wrong.
+Please use the Select Scroll tracker to check which locations you've already checked. By default, this is accessible by pressing 'Y' on keyboard or xbox controllers, and triangle on PlayStation controllers.
+Alternatively, you can also use Universal Tracker ([Discord channel](https://discord.com/channels/731205301247803413/1367270230635839539) | [GitHub releases](https://github.com/FarisTheAncient/Archipelago/releases/)))
