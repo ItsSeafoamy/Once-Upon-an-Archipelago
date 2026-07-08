@@ -247,6 +247,12 @@ public class SelectHirobaPatcher {
 		}
 	}
 
+	// Hide the vanilla "Unlock Conditions" that appears on locked levels
+	[HarmonyPrefix, HarmonyPatch(typeof(ScreenSpaceRender), nameof(ScreenSpaceRender.Render))]
+	private static bool ScreenSpaceRender_Render_Prefix() {
+		return false;
+	}
+
 	// loads the correct stage
 	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaKingController), nameof(SelectHirobaKingController.Update))]
 	private static void SelectHirobaKingController_Update_Postfix(SelectHirobaKingController __instance) {
