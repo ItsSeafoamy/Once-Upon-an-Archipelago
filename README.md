@@ -22,7 +22,7 @@ The following locations are checks:
 - Crowns
 
 ## Mod Installation
-1. Download the Bleeding Edge build #783 of [BepInEx 6](https://builds.bepinex.dev/projects/bepinex_be/783/BepInEx-Unity.IL2CPP-win-x86-6.0.0-be.783%2Bc58c42d.zip).
+1. Download the Bleeding Edge build #783 of [BepInEx 6](https://builds.bepinex.dev/projects/bepinex_be/783/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.783%2Bc58c42d.zip).
 2. Extract the contents into the game's root folder. By default, this is `C:\Program Files (x86)\Steam\steamapps\common\OnceUponaKATAMARI`.
 3. Download the Once Upon an Archipelago plugin from [releases](https://github.com/ItsSeafoamy/Once-Upon-an-Archipelago/releases), and extract its contents into `BepInEx/plugins`.
 4. For **Unix** (Linux, Mac, SteamOS) users only: add `WINEDLLOVERRIDES="winhttp.dll=n,b" %command%` to the launch options on Steam, under properties.
