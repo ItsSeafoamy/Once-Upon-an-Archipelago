@@ -96,20 +96,31 @@ public class SelectHirobaPatcher {
 	// allow the prince to be locked
 	[HarmonyPrefix, HarmonyPatch(typeof(ShortcutIconData), nameof(ShortcutIconData.Initialize))]
 	private static bool ShortcutIconData_Initialize_Prefix(ShortcutIconData __instance) {
-		if (__instance._ITOKONAME == ItokoSpawnData.ITOKONAME.OUJI && !Plugin.cousins.Contains(0)) {
-			__instance._oujiData._isReleased = false;
+		if (Plugin.randomizeCousins) {
+			if (__instance._ITOKONAME == ItokoSpawnData.ITOKONAME.OUJI && !Plugin.cousins.Contains(0)) {
+				__instance._oujiData._isReleased = false;
 
-			__instance._blankImage.enabled = true;
-			__instance._blankImage.color = new Color(0.5f, 0.5f, 0.5f, 1);
-			__instance._hatenaImage.enabled = true; // ? icon
-			__instance._iconImage.enabled = false;
-			__instance._backImage.enabled = false;
-			__instance._text.text = "???";
+				__instance._blankImage.enabled = true;
+				__instance._blankImage.color = new Color(0.5f, 0.5f, 0.5f, 1);
+				__instance._hatenaImage.enabled = true; // ? icon
+				__instance._iconImage.enabled = false;
+				__instance._backImage.enabled = false;
+				__instance._text.text = "???";
 
-			return false;
+				return false;
+			}
 		}
 
 		return true;
+	}
+
+	[HarmonyPostfix, HarmonyPatch(typeof(CharacterManager), nameof(CharacterManager.SetUp))]
+	private static void CharacterManager_SetUp_Postfix(CharacterManager __instance) {
+		foreach (OujiCharacterController ouji in __instance._characterControllers) {
+			if (ouji.IsOwner || !Plugin.randomizeCousins) continue;
+
+			if (!Plugin.cousins.Contains(ouji._characterID)) ouji.gameObject.SetActive(false);
+		}
 	}
 
 	// Reorder stage list so unlocked levels appear before locked ones

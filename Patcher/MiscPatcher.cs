@@ -45,6 +45,9 @@ public class MiscPatcher {
 
 	[HarmonyPostfix, HarmonyPatch(typeof(UISaveTitleFlow), nameof(UISaveTitleFlow.Update))]
 	private static void UISaveTitleFlow_Update_Postfix(UISaveTitleFlow __instance) {
+		GlobalManager.instance._nowCharacterID = Plugin.cousins[0];
+		GlobalSaveData.instance._selectPlayerId = Plugin.cousins[0];
+
 		if (__instance.NextSceneName == "SelectHirobaTutorialDemo" && Plugin.skipTutorial) {
 			__instance.NextSceneName = "SelectHiroba";
 
