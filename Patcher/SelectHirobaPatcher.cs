@@ -258,6 +258,15 @@ public class SelectHirobaPatcher {
 		}
 	}
 
+	// hide the hole from not having ALAP1/AFAP1
+	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaController), nameof(SelectHirobaController.SelectHirobaObjectInit))]
+	private static void SelectHirobaController_SelectHirobaObjectInit_Postfix(SelectHirobaController __instance) {
+		if (SelectHirobaManager.instance.GetMap == SelectHirobaEnum.Stage.EDO) {
+			GameObject obj = GameObject.Find("polySurface7");
+			GameObject.Instantiate(obj, new Vector3(33.3665f, -3.1888f, 5.4668f), Quaternion.identity, obj.transform.parent);
+		}
+	}
+
 	// Hide the vanilla "Unlock Conditions" that appears on locked levels
 	[HarmonyPrefix, HarmonyPatch(typeof(ScreenSpaceRender), nameof(ScreenSpaceRender.Render))]
 	private static bool ScreenSpaceRender_Render_Prefix() {
