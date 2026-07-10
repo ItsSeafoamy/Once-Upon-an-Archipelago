@@ -116,6 +116,7 @@ public class ArchipelagoClient {
 				Plugin.randomizePresents = (bool)slotData["randomize_presents"];
 				Plugin.randomizeCrowns = (bool)slotData["randomize_crowns"];
 				Plugin.skipTutorial = (bool)slotData["skip_tutorial"];
+				Plugin.collectionsanity = (bool)slotData["collectionsanity"];
 
 				Plugin.Logger.LogMessage(outText);
 
