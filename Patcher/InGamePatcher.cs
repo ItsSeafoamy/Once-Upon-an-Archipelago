@@ -156,11 +156,18 @@ public class InGamePatcher {
 				} else if (trapId == (int)eInstageItemType.Tarai) { // washpan
 					__instance.RequestTaraiDamageDemo();
 					__instance.DebugSubKatamariSize((int)(__instance.KatamariSize * 0.1f));
+				} else if (trapId == 100) {
+					FogTrap.Activate();
 				}
 
 				Plugin.usedTrapCount++;
 				Plugin.SaveArchipelagoData();
 			}
+		}
+
+		// dont run fog traps on lots of yokai as it messes with the in level fog
+		if (__instance.StageIdx != 27) {
+			FogTrap.Update(__instance);
 		}
 
 		// Handle deathlink
