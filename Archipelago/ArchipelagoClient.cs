@@ -18,9 +18,9 @@ public class ArchipelagoClient {
 	public static bool authenticated;
 	private bool attemptingConnection;
 
-	public static ArchipelagoData ServerData = new();
-	private DeathLinkHandler DeathLinkHandler;
-	private ArchipelagoSession session;
+	public static ArchipelagoData serverData = new();
+	public static DeathLinkHandler deathLinkHandler;
+	public static ArchipelagoSession session;
 
 	/// <summary>
 	/// call to connect to an Archipelago session. Connection info should already be set up on ServerData
@@ -30,7 +30,7 @@ public class ArchipelagoClient {
 		if (authenticated || attemptingConnection) return;
 
 		try {
-			session = ArchipelagoSessionFactory.CreateSession(ServerData.Uri);
+			session = ArchipelagoSessionFactory.CreateSession(serverData.Uri);
 			SetupSession();
 		} catch (Exception e) {
 			Plugin.Logger.LogError(e);
@@ -57,10 +57,10 @@ public class ArchipelagoClient {
 			HandleConnectResult(
 					session.TryConnectAndLogin(
 						Game,
-						ServerData.SlotName,
+						serverData.SlotName,
 						ItemsHandlingFlags.AllItems,
 						new Version(APVersion),
-						password: ServerData.Password,
+						password: serverData.Password,
 						requestSlotData: true // ServerData.NeedSlotData
 					));
 		} catch (Exception e) {
@@ -80,14 +80,14 @@ public class ArchipelagoClient {
 			var success = (LoginSuccessful) result;
 			var slotData = success.SlotData;
 
-			ServerData.SetupSession(slotData, session.RoomState.Seed);
+			serverData.SetupSession(slotData, session.RoomState.Seed);
 			authenticated = true;
 
 			if (!slotData.ContainsKey("mod_version")) {
 				// pre v0.3
-				DeathLinkHandler = new(session.CreateDeathLinkService(), ServerData.SlotName, (long)slotData.GetOrDefault("death_link", 0L) == 1);
-				session.Locations.CompleteLocationChecksAsync([.. ServerData.CheckedLocations]);
-				outText = $"Successfully connected to {ServerData.Uri} as {ServerData.SlotName}!";
+				deathLinkHandler = new(session.CreateDeathLinkService(), serverData.SlotName, (long)slotData.GetOrDefault("death_link", 0L) == 1);
+				session.Locations.CompleteLocationChecksAsync([.. serverData.CheckedLocations]);
+				outText = $"Successfully connected to {serverData.Uri} as {serverData.SlotName}!";
 
 				long planetCount = (long)slotData["number_of_planets"];
 				long planetRequirement = (long)slotData["planets_requirement"];
@@ -103,9 +103,9 @@ public class ArchipelagoClient {
 
 				Plugin.SetApConnectionText($"Archipelago: Connected");
 			} else if ((long)slotData["mod_version"] == 0) {
-				DeathLinkHandler = new(session.CreateDeathLinkService(), ServerData.SlotName, (bool)slotData["death_link"]);
-				session.Locations.CompleteLocationChecksAsync([.. ServerData.CheckedLocations]);
-				outText = $"Successfully connected to {ServerData.Uri} as {ServerData.SlotName}!";
+				deathLinkHandler = new(session.CreateDeathLinkService(), serverData.SlotName, (bool)slotData["death_link"]);
+				session.Locations.CompleteLocationChecksAsync([.. serverData.CheckedLocations]);
+				outText = $"Successfully connected to {serverData.Uri} as {serverData.SlotName}!";
 
 				long planetCount = (long)slotData["number_of_planets"];
 				long planetRequirement = (long)slotData["planet_requirement"];
@@ -116,7 +116,7 @@ public class ArchipelagoClient {
 				Plugin.randomizePresents = (bool)slotData["randomize_presents"];
 				Plugin.randomizeCrowns = (bool)slotData["randomize_crowns"];
 				Plugin.skipTutorial = (bool)slotData["skip_tutorial"];
-				Plugin.collectionsanity = (bool)slotData["collectionsanity"];
+				Plugin.collectionsanityMode = (int)(long)slotData["collectionsanity"];
 
 				Plugin.Logger.LogMessage(outText);
 
@@ -135,7 +135,7 @@ public class ArchipelagoClient {
 			}
 		} else {
 			var failure = (LoginFailure)result;
-			outText = $"Failed to connect to {ServerData.Uri} as {ServerData.SlotName}.";
+			outText = $"Failed to connect to {serverData.Uri} as {serverData.SlotName}.";
 			outText = failure.Errors.Aggregate(outText, (current, error) => current + $"\n    {error}");
 
 			Plugin.Logger.LogError(outText);
@@ -171,11 +171,11 @@ public class ArchipelagoClient {
 	}
 
 	public void CheckDeathLink(MainGameManager man) {
-		DeathLinkHandler.KillPlayer(man);
+		deathLinkHandler.KillPlayer(man);
 	}
 
 	public void SendDeathLink() {
-		DeathLinkHandler.SendDeathLink();
+		deathLinkHandler.SendDeathLink();
 	}
 
 	/// <summary>
@@ -185,15 +185,15 @@ public class ArchipelagoClient {
 	private void OnItemReceived(ReceivedItemsHelper helper) {
 		var receivedItem = helper.DequeueItem();
 
-		if (helper.Index <= ServerData.Index) return;
+		if (helper.Index <= serverData.Index) return;
 
-		ServerData.Index++;
+		serverData.Index++;
 
 		int id = (int) receivedItem.ItemId;
 		Plugin.Logger.LogInfo($"Received item: {receivedItem.ItemName} ({id}) from {receivedItem.Player.Name}");
 
-		if (id >= Plugin.TRAP_IP_OFFSET) {
-			Plugin.traps.Enqueue(id - Plugin.TRAP_IP_OFFSET);
+		if (id >= Plugin.TRAP_ID_OFFSET) {
+			Plugin.traps.Enqueue(id - Plugin.TRAP_ID_OFFSET);
 		} else if (id >= Plugin.FREEBIE_ID_OFFSET) {
 			Plugin.items.Enqueue((eInstageItemType)(id - Plugin.FREEBIE_ID_OFFSET));
 		} else if (id >= Plugin.FILLER_ID_OFFSET) {
@@ -216,7 +216,7 @@ public class ArchipelagoClient {
 	}
 
 	private void OnLocationChecked(ReadOnlyCollection<long> newCheckedLocations) {
-		ServerData.CheckedLocations.AddRange(newCheckedLocations);
+		serverData.CheckedLocations.AddRange(newCheckedLocations);
 		
 		foreach (long loc in newCheckedLocations) {
 			Plugin.Logger.LogInfo($"Checked location: {loc}");

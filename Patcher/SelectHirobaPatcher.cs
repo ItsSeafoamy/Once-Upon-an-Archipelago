@@ -31,7 +31,7 @@ public class SelectHirobaPatcher {
 		if (!item._isRelease || (int)item._eStageID < 1 || (int)item._eStageID == 51) return;
 
 		if (Plugin.randomizePresents && item._presentID >= 0) {
-			if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.PRESENT_ID_OFFSET + item._presentID)) {
+			if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.PRESENT_ID_OFFSET + item._presentID)) {
 				__instance._presentImages.color = Color.white;
 			} else {
 				__instance._presentImages.color = new Color(1, 1, 1, 0.5f);
@@ -50,7 +50,7 @@ public class SelectHirobaPatcher {
 				} else {
 					image.enabled = true;
 
-					if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.COUSIN_ID_OFFSET + itokoId)) {
+					if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.COUSIN_ID_OFFSET + itokoId)) {
 						Sprite sprite = __instance._listData.GetCustomSpritesData(itokoId + 1);
 						image.sprite = sprite;
 						image.color = Color.white;
@@ -72,7 +72,7 @@ public class SelectHirobaPatcher {
 			for (int i = 0; i < 3; i++) {
 				Image image = __instance._collectiveImages[i];
 
-				if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.CROWN_ID_OFFSET + crownIds[i])) {
+				if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.CROWN_ID_OFFSET + crownIds[i])) {
 					image.enabled = true;
 				} else {
 					image.enabled = false;
@@ -83,7 +83,7 @@ public class SelectHirobaPatcher {
 		}
 
 		Image clearImage = __instance._itokoImages[3];
-		if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.LEVEL_ID_OFFSET + (int)item._eStageID)) {
+		if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.LEVEL_ID_OFFSET + (int)item._eStageID)) {
 			clearImage.enabled = true;
 
 			clearImage.sprite = Plugin.clearSprite;
@@ -258,13 +258,19 @@ public class SelectHirobaPatcher {
 		}
 	}
 
-	// hide the hole from not having ALAP1/AFAP1
 	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaController), nameof(SelectHirobaController.SelectHirobaObjectInit))]
 	private static void SelectHirobaController_SelectHirobaObjectInit_Postfix(SelectHirobaController __instance) {
+		// hide the hole from not having ALAP1/AFAP1
 		if (SelectHirobaManager.instance.GetMap == SelectHirobaEnum.Stage.EDO) {
 			GameObject obj = GameObject.Find("polySurface7");
 			GameObject.Instantiate(obj, new Vector3(33.3665f, -3.1888f, 5.4668f), Quaternion.identity, obj.transform.parent);
 		}
+
+		// save stuff
+		if (Plugin.itemsToSkip == -1) {
+			Plugin.LoadArchipelagoData();
+		}
+		Plugin.SaveArchipelagoData();
 	}
 
 	// Hide the vanilla "Unlock Conditions" that appears on locked levels

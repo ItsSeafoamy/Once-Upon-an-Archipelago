@@ -64,7 +64,7 @@ public class UIPatcher {
 
 		int selectedStage = Plugin.fansToStages[__instance._idStages[0]][__instance.NowPageIndex];
 		GlobalManager glb = GlobalManager.Instance;
-		List<long> checks = ArchipelagoClient.ServerData.CheckedLocations;
+		List<long> checks = ArchipelagoClient.serverData.CheckedLocations;
 
 		// crowns
 		if (Plugin.randomizeCrowns) {

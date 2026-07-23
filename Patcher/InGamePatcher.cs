@@ -11,6 +11,8 @@ public class InGamePatcher {
 	private static bool usingMushroom = false;
 	private static float spiderTimer = 0f;
 
+	private static int collectionsanityCount = 0;
+
 	// detects crown collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameCollectiveItem), nameof(MainGameCollectiveItem.Collected))]
 	private static void MainGameCollectiveItem_Collected_Postfix(MainGameCollectiveItem __instance) {
@@ -44,7 +46,7 @@ public class InGamePatcher {
 	// collectionsanity
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameMonoBase), nameof(MainGameMonoBase.Rolled))]
 	private static void MainGameMonoBase_Rolled_Postfix(MainGameMonoBase __instance) {
-		if (Plugin.collectionsanity) {
+		if (Plugin.collectionsanityMode > 0) {
 			int listId = __instance.gameMan.CheckListIndexFromMonoID(__instance.MonoID);
 			MonoInfo.Param param = __instance.gameMan.MonoData.list[listId];
 
@@ -55,7 +57,17 @@ public class InGamePatcher {
 				id = param.id;
 			}
 
-			Plugin.archipelagoClient.SendCheck(id + Plugin.COLLECTION_ID_OFFSET);
+			if (Plugin.collectionsanityMode == 1) {
+				Plugin.archipelagoClient.SendCheck(id + Plugin.COLLECTION_INDIVIDUAL_ID_OFFSET);
+			} else if (Plugin.collectionsanityData.ContainsKey(id)) {
+				if (!Plugin.collectionsanityData[id]) {
+					Plugin.collectionsanityData[id] = true;
+
+					Plugin.collectionsanityCount++;
+
+					Plugin.archipelagoClient.SendCheck(Plugin.collectionsanityCount + Plugin.COLLECTION_MILESTONE_ID_OFFSET);
+				}
+			}
 		}
 	}
 
