@@ -37,12 +37,17 @@ public class Plugin : BasePlugin {
 	public static int usedTrapCount = 0;
 	public static int trapsToSkip = -1;
 
+	public static Dictionary<int, bool> collectionsanityData = [];
+	public static int collectionsanityCount = 0;
+
 	public static int planets = 0;
 	public static int planetsNeeded;
 	public static bool planetsOnClear;
 	public static bool randomizeCousins;
 	public static bool randomizePresents;
 	public static bool randomizeCrowns;
+	public static bool skipTutorial;
+	public static int collectionsanityMode;
 	public static bool easyFinale;
 
 	public static Dictionary<int, List<int>> fansToStages = [];
@@ -55,7 +60,9 @@ public class Plugin : BasePlugin {
 	public const int PLANET_ID_OFFSET = 4_000;
 	public const int FILLER_ID_OFFSET = 5_000;
 	public const int FREEBIE_ID_OFFSET = 6_000;
-	public const int TRAP_IP_OFFSET = 7_000;
+	public const int TRAP_ID_OFFSET = 7_000;
+	public const int COLLECTION_INDIVIDUAL_ID_OFFSET = 100_000;
+	public const int COLLECTION_MILESTONE_ID_OFFSET = 200_000;
 
 	private static string ARCHIPELAGO_SAVE_FOLDER = Application.dataPath + "/../ArchipelagoData/";
 
@@ -71,9 +78,9 @@ public class Plugin : BasePlugin {
 
 		// connect to archipelago
 		archipelagoClient = new ArchipelagoClient();
-		ArchipelagoClient.ServerData.Uri = uri.Value;
-		ArchipelagoClient.ServerData.SlotName = slotName.Value;
-		ArchipelagoClient.ServerData.Password = password.Value;
+		ArchipelagoClient.serverData.Uri = uri.Value;
+		ArchipelagoClient.serverData.SlotName = slotName.Value;
+		ArchipelagoClient.serverData.Password = password.Value;
 		archipelagoClient.Connect();
 
 		levelNames[51] = "That Hole...";
@@ -82,12 +89,31 @@ public class Plugin : BasePlugin {
 			Directory.CreateDirectory(ARCHIPELAGO_SAVE_FOLDER);
 		}
 
-		Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
-
 		Harmony.CreateAndPatchAll(typeof(InGamePatcher));
 		Harmony.CreateAndPatchAll(typeof(SelectHirobaPatcher));
 		Harmony.CreateAndPatchAll(typeof(UIPatcher));
 		Harmony.CreateAndPatchAll(typeof(MiscPatcher));
+
+		Il2CppSystem.Collections.Generic.List<MonoInfo> monoCategoryTable = CollectionAssetTable.Instance.MonoCategoryTable();
+
+		for (int catIdx = 0; catIdx < monoCategoryTable.Count; catIdx++) {
+			MonoInfo category = monoCategoryTable[catIdx];
+
+			foreach (MonoInfo.Param obj in category.list) {
+				int id;
+				if (obj.SyncMonoID != -1) {
+					id = obj.SyncMonoID;
+				} else {
+					id = obj.id;
+				}
+
+				if (!collectionsanityData.ContainsKey(id)) {
+					collectionsanityData[id] = false;
+				}
+			}
+		}
+
+		Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 	}
 
 	public static void SetApConnectionText(string text) {
@@ -105,8 +131,10 @@ public class Plugin : BasePlugin {
 		Logger.LogInfo($"Saving Archipelago data to {path}");
 
 		File.WriteAllLines(path, [
+			"seed=" + ArchipelagoClient.session.RoomState.Seed,
 			"items=" + usedItemCount,
-			"traps=" + usedTrapCount
+			"traps=" + usedTrapCount,
+			"collection=" + string.Join(",", collectionsanityData.Where(x => x.Value).Select(x => x.Key))
 		]);
 	}
 
@@ -119,6 +147,11 @@ public class Plugin : BasePlugin {
 		itemsToSkip = 0;
 		usedTrapCount = 0;
 		trapsToSkip = 0;
+
+		foreach (int key in collectionsanityData.Keys) {
+			collectionsanityData[key] = false;
+		}
+		collectionsanityCount = 0;
 
 		if (File.Exists(path)) {
 			File.ReadAllLines(path).ToList().ForEach(line => {
@@ -133,6 +166,13 @@ public class Plugin : BasePlugin {
 					} else if (key == "traps") {
 						usedTrapCount = int.Parse(value);
 						trapsToSkip = usedTrapCount;
+					} else if (key == "collection") {
+						IEnumerable<int> collected = parts[1].Split(",").Select(int.Parse);
+
+						foreach (int obj in collected) {
+							collectionsanityData[obj] = true;
+							collectionsanityCount++;
+						}
 					}
 				}
 			});
@@ -152,5 +192,31 @@ public class Plugin : BasePlugin {
 		itemsToSkip = 0;
 		usedTrapCount = 0;
 		trapsToSkip = 0;
+
+		foreach (int key in collectionsanityData.Keys) {
+			collectionsanityData[key] = false;
+		}
+		collectionsanityCount = 0;
+	}
+
+	public static void SetInitialFlags() {
+		GlobalSaveData data = GlobalManager.instance.glbSave;
+
+		data._progression = 34; // how far along the story you are. not sure if this is actually needed anymore
+		data.Big1Start1st = true; // allows leaving ALAP1 on first playthrough
+		data._firstSelectHiroba = true; // sets the SS Prince as having already been repaired
+		data._stageIndex = (int)SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
+		data.FirstGotoSelectEmaki = 1; // makes the S.S. Prince menu option available without needing to go there first
+		data.SetPalyMovie(true, 33); // sets the tutorial movie as having already been played so we can skip the tutorial
+
+		// marks all events as having already been done
+		// prevents the king forcing you to go into certain eras on a whim
+		// also skips the repair the S.S. Prince event
+		// and more importantly, prevents softlocks that can happen when you receive certain/too many levels at the wrong/same time
+		for (int i = 0; i < data._messageEvent.Count; i++) {
+			data._messageEvent[i] = true;
+		}
+
+		DeleteArchipelagoData();
 	}
 }

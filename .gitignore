@@ -402,3 +402,5 @@ FodyWeavers.xsd
 
 libs
 *.sln
+
+Paths.props

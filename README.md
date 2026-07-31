@@ -12,14 +12,15 @@ The following items are shuffled into the item pool:
 - Presents
 - Planets
 - Freebies (Rocket, Magnet, Timer, Sonar, Mushroom & Ice Axe)
-- Traps (Washpan & Spider Traps)
+- Traps (Washpan, Spider & Fog Traps)
 - Stardust (filler)
 
-The following locations are checks:
+The following locations can be checks:
 - Level Clears
 - Cousins
 - Presents
 - Crowns
+- Collectionsanity: (Almost) every unique object in the game
 
 ## Mod Installation
 1. Download the Bleeding Edge build #783 of [BepInEx 6](https://builds.bepinex.dev/projects/bepinex_be/783/BepInEx-Unity.IL2CPP-win-x64-6.0.0-be.783%2Bc58c42d.zip).
@@ -47,12 +48,9 @@ to clear lots of levels first. This setting is enabled by default, and logic ass
 - In vanilla, only one cousin appears at a time in a stage, requiring the player to play through the stage multiple times. In Archipelago, all cousins will appear in the same playthrough.
 - The Mushroom freebie increases your katamari's size by 10% normally, or 20% for its super variant. The Ice Axe freebie allows you to scale walls much higher and faster. These freebies
 must be enabled in your YAML if you wish to use them.
-- The washpan trap decreases your katamari's size by 10%. The spider trap decreases your roll speed by 50% for 10 seconds.
+- The washpan trap decreases your katamari's size by 10%. The spider trap decreases your roll speed by 50% for 10 seconds. The fog trap adds the fog from 'Lots of Yokai', which slowly dissipates over time.
 
 ## Known Issues
 - Sometimes, when levels are unlocked, they can get stuck in the sky. This is just a visual bug, you can still play the level by going to the location the level should be. 
 This can also be fixed by reloading the scene (by selecting a stage in this era using the Select Scroll).
 - The game cannot (re)connect to the server after launch. You must restart the game to (re)connect.
-- When starting a level, the crowns, cousins and presents shown as (un)collected may be wrong.
-Please use the Select Scroll tracker to check which locations you've already checked. By default, this is accessible by pressing 'Y' on keyboard or xbox controllers, and triangle on PlayStation controllers.
-Alternatively, you can also use Universal Tracker ([Discord channel](https://discord.com/channels/731205301247803413/1367270230635839539) | [GitHub releases](https://github.com/FarisTheAncient/Archipelago/releases/)))

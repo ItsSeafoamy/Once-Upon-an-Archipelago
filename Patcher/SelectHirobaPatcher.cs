@@ -31,7 +31,7 @@ public class SelectHirobaPatcher {
 		if (!item._isRelease || (int)item._eStageID < 1 || (int)item._eStageID == 51) return;
 
 		if (Plugin.randomizePresents && item._presentID >= 0) {
-			if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.PRESENT_ID_OFFSET + item._presentID)) {
+			if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.PRESENT_ID_OFFSET + item._presentID)) {
 				__instance._presentImages.color = Color.white;
 			} else {
 				__instance._presentImages.color = new Color(1, 1, 1, 0.5f);
@@ -50,7 +50,7 @@ public class SelectHirobaPatcher {
 				} else {
 					image.enabled = true;
 
-					if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.COUSIN_ID_OFFSET + itokoId)) {
+					if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.COUSIN_ID_OFFSET + itokoId)) {
 						Sprite sprite = __instance._listData.GetCustomSpritesData(itokoId + 1);
 						image.sprite = sprite;
 						image.color = Color.white;
@@ -72,7 +72,7 @@ public class SelectHirobaPatcher {
 			for (int i = 0; i < 3; i++) {
 				Image image = __instance._collectiveImages[i];
 
-				if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.CROWN_ID_OFFSET + crownIds[i])) {
+				if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.CROWN_ID_OFFSET + crownIds[i])) {
 					image.enabled = true;
 				} else {
 					image.enabled = false;
@@ -83,13 +83,43 @@ public class SelectHirobaPatcher {
 		}
 
 		Image clearImage = __instance._itokoImages[3];
-		if (ArchipelagoClient.ServerData.CheckedLocations.Contains(Plugin.LEVEL_ID_OFFSET + (int)item._eStageID)) {
+		if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.LEVEL_ID_OFFSET + (int)item._eStageID)) {
 			clearImage.enabled = true;
 
 			clearImage.sprite = Plugin.clearSprite;
 			clearImage.color = Color.white;
 		} else {
 			clearImage.enabled = false;
+		}
+	}
+
+	// allow the prince to be locked
+	[HarmonyPrefix, HarmonyPatch(typeof(ShortcutIconData), nameof(ShortcutIconData.Initialize))]
+	private static bool ShortcutIconData_Initialize_Prefix(ShortcutIconData __instance) {
+		if (Plugin.randomizeCousins) {
+			if (__instance._ITOKONAME == ItokoSpawnData.ITOKONAME.OUJI && !Plugin.cousins.Contains(0)) {
+				__instance._oujiData._isReleased = false;
+
+				__instance._blankImage.enabled = true;
+				__instance._blankImage.color = new Color(0.5f, 0.5f, 0.5f, 1);
+				__instance._hatenaImage.enabled = true; // ? icon
+				__instance._iconImage.enabled = false;
+				__instance._backImage.enabled = false;
+				__instance._text.text = "???";
+
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	[HarmonyPostfix, HarmonyPatch(typeof(CharacterManager), nameof(CharacterManager.SetUp))]
+	private static void CharacterManager_SetUp_Postfix(CharacterManager __instance) {
+		foreach (OujiCharacterController ouji in __instance._characterControllers) {
+			if (ouji.IsOwner || !Plugin.randomizeCousins) continue;
+
+			if (!Plugin.cousins.Contains(ouji._characterID)) ouji.gameObject.SetActive(false);
 		}
 	}
 
@@ -167,6 +197,13 @@ public class SelectHirobaPatcher {
 		return false;
 	}
 
+	// _stageReleasableEventStack defaults to size 10
+	// but there's more than 10 releasables in Edo Japan, which would cause a softlock if you unlock more than 10 at once
+	[HarmonyPrefix, HarmonyPatch(typeof(EventController), nameof(EventController.Start))]
+	private static void EventController_Start_Prefix(EventController __instance) {
+		__instance._stageReleasableEventStack = new int[20];
+	}
+
 	// disables plaza blocks
 	[HarmonyPrefix, HarmonyPatch(typeof(SelectHirobaBlockEventObject), nameof(SelectHirobaBlockEventObject.Start))]
 	private static void SelectHirobaBlockEventObject_Start_Prefix(SelectHirobaBlockEventObject __instance) {
@@ -179,7 +216,8 @@ public class SelectHirobaPatcher {
 	private static void GlobalSaveData_IsClearTargetStage_Postfix(ref bool __result, StarIDEnum starID) {
 		int stageId = SelectHirobaManager.ConvertStageID(starID);
 
-		if (stageId == 4 || stageId == 19) __result = IsStageMarkedClear(stageId, 4, 19);
+		if (stageId == 20) __result = true;
+		else if (stageId == 4 || stageId == 19) __result = IsStageMarkedClear(stageId, 4, 19);
 		else if (stageId == 5 || stageId == 21) __result = IsStageMarkedClear(stageId, 5, 21);
 		else if (stageId == 6 || stageId == 42) __result = IsStageMarkedClear(stageId, 6, 42);
 		else if (stageId == 11 || stageId == 31) __result = IsStageMarkedClear(stageId, 11, 31);
@@ -218,6 +256,27 @@ public class SelectHirobaPatcher {
 		if (messageID == "FAN_M02_1_") {
 			__instance._fanMessages[0] = __instance._fanMessages[1];
 		}
+	}
+
+	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaController), nameof(SelectHirobaController.SelectHirobaObjectInit))]
+	private static void SelectHirobaController_SelectHirobaObjectInit_Postfix(SelectHirobaController __instance) {
+		// hide the hole from not having ALAP1/AFAP1
+		if (SelectHirobaManager.instance.GetMap == SelectHirobaEnum.Stage.EDO) {
+			GameObject obj = GameObject.Find("polySurface7");
+			GameObject.Instantiate(obj, new Vector3(33.3665f, -3.1888f, 5.4668f), Quaternion.identity, obj.transform.parent);
+		}
+
+		// save stuff
+		if (Plugin.itemsToSkip == -1) {
+			Plugin.LoadArchipelagoData();
+		}
+		Plugin.SaveArchipelagoData();
+	}
+
+	// Hide the vanilla "Unlock Conditions" that appears on locked levels
+	[HarmonyPrefix, HarmonyPatch(typeof(ScreenSpaceRender), nameof(ScreenSpaceRender.Render))]
+	private static bool ScreenSpaceRender_Render_Prefix() {
+		return false;
 	}
 
 	// loads the correct stage

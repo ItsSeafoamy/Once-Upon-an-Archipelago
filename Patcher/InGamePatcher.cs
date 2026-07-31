@@ -1,5 +1,7 @@
 ﻿using App.KatamariSin;
+using BepInEx;
 using HarmonyLib;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace OnceUponAnArchipelago.Patcher;
@@ -9,12 +11,14 @@ public class InGamePatcher {
 	private static bool usingMushroom = false;
 	private static float spiderTimer = 0f;
 
+	private static int collectionsanityCount = 0;
+
 	// detects crown collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameCollectiveItem), nameof(MainGameCollectiveItem.Collected))]
 	private static void MainGameCollectiveItem_Collected_Postfix(MainGameCollectiveItem __instance) {
-		Plugin.Logger.LogInfo($"Collected Crown: {__instance.name} ({__instance.CollectID})");
-
 		if (Plugin.randomizeCrowns) {
+			Plugin.Logger.LogInfo($"Collected Crown: {__instance.name} ({__instance.CollectID})");
+
 			Plugin.archipelagoClient.SendCheck(__instance.CollectID + Plugin.CROWN_ID_OFFSET);
 		}
 	}
@@ -22,9 +26,9 @@ public class InGamePatcher {
 	// detects present collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.RequestPresentMessage))]
 	private static void MainGameManager_RequestPresentMessage_Postfix(MainGameManager __instance) {
-		Plugin.Logger.LogInfo($"Collected Present: {GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID}");
-
 		if (Plugin.randomizePresents) {
+			Plugin.Logger.LogInfo($"Collected Present: {GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID}");
+
 			Plugin.archipelagoClient.SendCheck(GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID + Plugin.PRESENT_ID_OFFSET);
 		}
 	}
@@ -32,10 +36,38 @@ public class InGamePatcher {
 	// detects cousin collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.SetItokoRolled))]
 	private static void MainGameManager_SetItokoRolled_Postfix(int ItokoID) {
-		Plugin.Logger.LogInfo($"Collected cousin: {ItokoID}");
-
 		if (Plugin.randomizeCousins) {
+			Plugin.Logger.LogInfo($"Collected cousin: {ItokoID}");
+
 			Plugin.archipelagoClient.SendCheck(ItokoID + Plugin.COUSIN_ID_OFFSET);
+		}
+	}
+
+	// collectionsanity
+	[HarmonyPostfix, HarmonyPatch(typeof(MainGameMonoBase), nameof(MainGameMonoBase.Rolled))]
+	private static void MainGameMonoBase_Rolled_Postfix(MainGameMonoBase __instance) {
+		if (Plugin.collectionsanityMode > 0) {
+			int listId = __instance.gameMan.CheckListIndexFromMonoID(__instance.MonoID);
+			MonoInfo.Param param = __instance.gameMan.MonoData.list[listId];
+
+			int id;
+			if (param.SyncMonoID != -1) {
+				id = param.SyncMonoID;
+			} else {
+				id = param.id;
+			}
+
+			if (Plugin.collectionsanityMode == 1) {
+				Plugin.archipelagoClient.SendCheck(id + Plugin.COLLECTION_INDIVIDUAL_ID_OFFSET);
+			} else if (Plugin.collectionsanityData.ContainsKey(id)) {
+				if (!Plugin.collectionsanityData[id]) {
+					Plugin.collectionsanityData[id] = true;
+
+					Plugin.collectionsanityCount++;
+
+					Plugin.archipelagoClient.SendCheck(Plugin.collectionsanityCount + Plugin.COLLECTION_MILESTONE_ID_OFFSET);
+				}
+			}
 		}
 	}
 
@@ -136,11 +168,18 @@ public class InGamePatcher {
 				} else if (trapId == (int)eInstageItemType.Tarai) { // washpan
 					__instance.RequestTaraiDamageDemo();
 					__instance.DebugSubKatamariSize((int)(__instance.KatamariSize * 0.1f));
+				} else if (trapId == 100) {
+					FogTrap.Activate();
 				}
 
 				Plugin.usedTrapCount++;
 				Plugin.SaveArchipelagoData();
 			}
+		}
+
+		// dont run fog traps on lots of yokai as it messes with the in level fog
+		if (__instance.StageIdx != 27) {
+			FogTrap.Update(__instance);
 		}
 
 		// Handle deathlink
@@ -193,22 +232,6 @@ public class InGamePatcher {
 	// runs when the tutorial first plays
 	[HarmonyPostfix, HarmonyPatch(typeof(UITutorialManager), nameof(UITutorialManager.Start))]
 	private static void UITutorialManager_Start_Postfix(ref UITutorialManager __instance) {
-		GlobalSaveData data = __instance.globalMan.glbSave;
-
-		data._progression = 34; // how far along the story you are. not sure if this is actually needed anymore
-		data.Big1Start1st = true; // allows leaving ALAP1 on first playthrough
-		data._firstSelectHiroba = true; // sets the SS Prince as having already been repaired
-		data._stageIndex = (int)SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
-		data.FirstGotoSelectEmaki = 1; // makes the S.S. Prince menu option available without needing to go there first
-
-		// marks all events as having already been done
-		// prevents the king forcing you to go into certain eras on a whim
-		// also skips the repair the S.S. Prince event
-		// and more importantly, prevents softlocks that can happen when you receive certain/too many levels at the wrong/same time
-		for (int i = 0; i < data._messageEvent.Count; i++) {
-			data._messageEvent[i] = true;
-		}
-
-		Plugin.DeleteArchipelagoData();
+		Plugin.SetInitialFlags();
 	}
 }
