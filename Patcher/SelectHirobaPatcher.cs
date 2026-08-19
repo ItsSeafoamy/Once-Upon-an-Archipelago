@@ -237,6 +237,7 @@ public class SelectHirobaPatcher {
 				_ => false
 			};
 		}
+		else if (starID == StarIDEnum.STAR_SAKABA1_1) __result = true; // stone statues
 	}
 
 	private static bool IsStageMarkedClear(int stageId, int a, int b) {
@@ -265,6 +266,8 @@ public class SelectHirobaPatcher {
 			GameObject obj = GameObject.Find("polySurface7");
 			GameObject.Instantiate(obj, new Vector3(33.3665f, -3.1888f, 5.4668f), Quaternion.identity, obj.transform.parent);
 		}
+
+		GlobalSaveData.instance._isStoneEvent = true;
 
 		// save stuff
 		if (Plugin.itemsToSkip == -1) {
