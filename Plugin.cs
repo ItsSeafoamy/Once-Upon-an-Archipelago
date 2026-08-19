@@ -48,7 +48,6 @@ public class Plugin : BasePlugin {
 	public static bool randomizeCrowns;
 	public static bool skipTutorial;
 	public static int collectionsanityMode;
-	public static bool easyFinale;
 
 	public static Dictionary<int, List<int>> fansToStages = [];
 	public static Dictionary<int, string> levelNames = [];
@@ -74,7 +73,6 @@ public class Plugin : BasePlugin {
 		ConfigEntry<string> uri = Config.Bind("Archipelago", "serverAddress", "archipelago.gg:12345", "The url to connect to, including port");
 		ConfigEntry<string> slotName = Config.Bind("Archipelago", "slotName", "Player1", "The name of the slot to connect to");
 		ConfigEntry<string> password = Config.Bind("Archipelago", "password", "", "The server password. Leave blank if there is none");
-		easyFinale = Config.Bind("General", "easyFinale", true, "Allows you to plug the hole after rolling up just one item. This removes the requirement to beat lots of stages first. Logic assumes enabled.").Value;
 
 		// connect to archipelago
 		archipelagoClient = new ArchipelagoClient();

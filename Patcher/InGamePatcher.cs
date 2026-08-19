@@ -93,14 +93,6 @@ public class InGamePatcher {
 		}
 	}
 
-	// make sure the final stage can always be completed once you have it
-	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.AddKatamariSize))]
-	private static void MainGameManager_AddKatamariSize_Postfix(MainGameManager __instance) {
-		if (__instance.StageIdx == 51 && __instance.KatamariSize < 30000 && Plugin.easyFinale) {
-			__instance._katamariSize = 30000;
-		}
-	}
-
 	// allows you to pick up any cousin in the same playthrough
 	[HarmonyPrefix, HarmonyPatch(typeof(MainGameMonoBase), nameof(MainGameMonoBase.PermaDelete))]
 	private static bool MainGameMonoBase_PermaDelete_Prefix() {
@@ -233,5 +225,15 @@ public class InGamePatcher {
 	[HarmonyPostfix, HarmonyPatch(typeof(UITutorialManager), nameof(UITutorialManager.Start))]
 	private static void UITutorialManager_Start_Postfix(ref UITutorialManager __instance) {
 		Plugin.SetInitialFlags();
+	}
+
+	[HarmonyPrefix, HarmonyPatch(typeof(MainGameMonoBase), nameof(MainGameMonoBase.CheckStarState))]
+	private static bool MainGameMonoBase_CheckStarState_Prefix(ref MainGameMonoBase __instance) {
+		if (__instance.MonoID < 3750) {
+			__instance.Undelete();
+			return false;
+		}
+
+		return true;
 	}
 }
