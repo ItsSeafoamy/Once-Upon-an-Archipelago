@@ -289,4 +289,9 @@ public class SelectHirobaPatcher {
 			__instance._stages = Plugin.fansToStages[__instance._myStageID].ToArray();
 		}
 	}
+
+	[HarmonyPostfix, HarmonyPatch(typeof(SoundDataInfo), nameof(SoundDataInfo.CheckReleasable))]
+	private static void SoundDataInfo_CheckReleasable_Postfix(SoundDataInfo __instance) {
+		__instance._releasable = true;
+	}
 }
