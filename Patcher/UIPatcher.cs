@@ -13,10 +13,7 @@ public class UIPatcher {
 	// UI
 	[HarmonyPrefix, HarmonyPatch(typeof(UITextSetter), nameof(UITextSetter.SetText), argumentTypes: [typeof(string)])]
 	private static bool UITextSetter_SetText_Prefix(UITextSetter __instance, ref string text) {
-		if (__instance.name == "Deteil") { // AP connection status
-			Plugin.apConnectionUI = __instance;
-			text = Plugin.apConnectionText;
-		} else if (__instance.transform.parent.name == "Caption") { // stage names
+		if (__instance.transform.parent.name == "Caption") { // stage names
 			Transform transform = __instance.transform;
 			while (transform.parent != null) {
 				transform = transform.parent;
@@ -31,16 +28,6 @@ public class UIPatcher {
 					break;
 				}
 			}
-		}
-
-		return true;
-	}
-
-	[HarmonyPrefix, HarmonyPatch(typeof(UITextSetter), nameof(UITextSetter.SetText), argumentTypes: [typeof(string), typeof(TextLocalizer.LocalizeSheet)])]
-	private static bool UITextSetter_SetText_Prefix(UITextSetter __instance) {
-		if (__instance.name == "Deteil") {
-			__instance.SetText(Plugin.apConnectionText);
-			return false;
 		}
 
 		return true;

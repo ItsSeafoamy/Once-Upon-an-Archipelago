@@ -42,6 +42,9 @@
 		<Reference Include="UnityEngine.AssetBundleModule">
 			<HintPath>libs/UnityEngine.AssetBundleModule.dll</HintPath>
 		</Reference>
+		<Reference Include="UnityEngine.UIModule">
+			<HintPath>libs/UnityEngine.UIModule.dll</HintPath>
+		</Reference>
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

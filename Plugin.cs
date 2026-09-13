@@ -11,6 +11,7 @@ using OnceUponAnArchipelago.Patcher;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using UnityEngine.UI;
 
 namespace OnceUponAnArchipelago;
 
@@ -19,8 +20,7 @@ public class Plugin : BasePlugin {
 	internal static ManualLogSource Logger;
 
 	public static ArchipelagoClient archipelagoClient;
-	public static UITextSetter apConnectionUI;
-	public static string apConnectionText = "<color=red>Archipelago: Not Connected</color>";
+	public static TextMeshProUGUI apConnectionUI;
 
 	public static TextMeshProUGUI planetsText;
 	public static Sprite clearSprite;
@@ -74,6 +74,27 @@ public class Plugin : BasePlugin {
 		ConfigEntry<string> slotName = Config.Bind("Archipelago", "slotName", "Player1", "The name of the slot to connect to");
 		ConfigEntry<string> password = Config.Bind("Archipelago", "password", "", "The server password. Leave blank if there is none");
 
+		// set up UI stuff
+		GameObject canvasObject = new("Archipelago");
+		GameObject.DontDestroyOnLoad(canvasObject);
+		canvasObject.hideFlags |= HideFlags.HideAndDontSave;
+		canvasObject.layer = 5;
+		canvasObject.transform.position = new Vector3(0, 0, 1);
+
+		Canvas canvas = canvasObject.AddComponent<Canvas>();
+		canvas.renderMode = RenderMode.ScreenSpaceCamera;
+		canvas.referencePixelsPerUnit = 100;
+		canvas.sortingOrder = 20_000;
+		canvas.overrideSorting = true;
+
+		CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
+		scaler.referenceResolution = new Vector2(1920, 1080);
+		scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+
+		apConnectionUI = canvasObject.AddComponent<TextMeshProUGUI>();
+		apConnectionUI.color = Color.green;
+		SetApConnectionText("<red>Archipelago: Not Connected</red>");
+
 		// connect to archipelago
 		archipelagoClient = new ArchipelagoClient();
 		ArchipelagoClient.serverData.Uri = uri.Value;
@@ -115,8 +136,7 @@ public class Plugin : BasePlugin {
 	}
 
 	public static void SetApConnectionText(string text) {
-		apConnectionText = text;
-		apConnectionUI?.SetText(apConnectionText);
+		apConnectionUI?.SetText(text);
 	}
 
 	public static void SetPlanetsText(int planetsOwned, int planetsNeeded) {
