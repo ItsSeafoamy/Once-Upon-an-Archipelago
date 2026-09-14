@@ -19,8 +19,8 @@ public class SelectHirobaPatcher {
 	// Select Scroll
 	[HarmonyPostfix, HarmonyPatch(typeof(MissionItem), nameof(MissionItem.CheckRelease))]
 	private static void MissionItem_CheckRelease_Postfix(ref bool __result, MissionItem __instance) {
-		if ((int)__instance._eStageID < 1) __result = true;
-		else __result = Plugin.levels.Contains((int)__instance._eStageID);
+		if ((int) __instance._eStageID < 1) __result = true;
+		else __result = Plugin.levels.Contains((int) __instance._eStageID);
 	}
 
 	// show what checks you've done in the select scroll
@@ -28,7 +28,7 @@ public class SelectHirobaPatcher {
 	private static void SubjectListDataSet_SetMyList_Postfix(SubjectListDataSet __instance, MissionItem item) {
 		item._isRelease = item.CheckRelease();
 
-		if (!item._isRelease || (int)item._eStageID < 1 || (int)item._eStageID == 51) return;
+		if (!item._isRelease || (int) item._eStageID < 1 || (int) item._eStageID == 51) return;
 
 		if (Plugin.randomizePresents && item._presentID >= 0) {
 			if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.PRESENT_ID_OFFSET + item._presentID)) {
@@ -66,7 +66,7 @@ public class SelectHirobaPatcher {
 		}
 
 		if (Plugin.randomizeCrowns) {
-			int stageId = (int)item._eStageID;
+			int stageId = (int) item._eStageID;
 			int[] crownIds = GlobalManager.instance.GetStageCollective(stageId);
 
 			for (int i = 0; i < 3; i++) {
@@ -83,7 +83,7 @@ public class SelectHirobaPatcher {
 		}
 
 		Image clearImage = __instance._itokoImages[3];
-		if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.LEVEL_ID_OFFSET + (int)item._eStageID)) {
+		if (ArchipelagoClient.serverData.CheckedLocations.Contains(Plugin.LEVEL_ID_OFFSET + (int) item._eStageID)) {
 			clearImage.enabled = true;
 
 			clearImage.sprite = Plugin.clearSprite;
@@ -154,11 +154,11 @@ public class SelectHirobaPatcher {
 			if (stages.Contains(i)) {
 				if (specialFans.Contains(__instance.ObjectId)) {
 					__instance.SetReleaseActiveNormal();
-					return;
 				} else {
 					__instance.SetRelease();
-					return;
 				}
+
+				return;
 			}
 		}
 
@@ -217,15 +217,15 @@ public class SelectHirobaPatcher {
 		int stageId = SelectHirobaManager.ConvertStageID(starID);
 
 		if (stageId == 20) __result = true;
-		else if (stageId == 4 || stageId == 19) __result = IsStageMarkedClear(stageId, 4, 19);
-		else if (stageId == 5 || stageId == 21) __result = IsStageMarkedClear(stageId, 5, 21);
-		else if (stageId == 6 || stageId == 42) __result = IsStageMarkedClear(stageId, 6, 42);
-		else if (stageId == 11 || stageId == 31) __result = IsStageMarkedClear(stageId, 11, 31);
-		else if (stageId == 15 || stageId == 24) __result = IsStageMarkedClear(stageId, 15, 24);
-		else if (stageId == 34 || stageId == 36) __result = IsStageMarkedClear(stageId, 34, 36);
-		else if (stageId == 53 || stageId == 54) __result = IsStageMarkedClear(stageId, 53, 54);
-		else if (stageId == 56 || stageId == 61) __result = IsStageMarkedClear(stageId, 56, 61);
-		else if (stageId == 26 || stageId == 29 || stageId == 30) {
+		else if (stageId is 4 or 19) __result = IsStageMarkedClear(stageId, 4, 19);
+		else if (stageId is 5 or 21) __result = IsStageMarkedClear(stageId, 5, 21);
+		else if (stageId is 6 or 42) __result = IsStageMarkedClear(stageId, 6, 42);
+		else if (stageId is 11 or 31) __result = IsStageMarkedClear(stageId, 11, 31);
+		else if (stageId is 15 or 24) __result = IsStageMarkedClear(stageId, 15, 24);
+		else if (stageId is 34 or 36) __result = IsStageMarkedClear(stageId, 34, 36);
+		else if (stageId is 53 or 54) __result = IsStageMarkedClear(stageId, 53, 54);
+		else if (stageId is 56 or 61) __result = IsStageMarkedClear(stageId, 56, 61);
+		else if (stageId is 26 or 29 or 30) {
 			int owned = 0;
 			if (Plugin.levels.Contains(26)) owned++;
 			if (Plugin.levels.Contains(29)) owned++;
@@ -236,8 +236,7 @@ public class SelectHirobaPatcher {
 				2 => stageId == 26,
 				_ => false
 			};
-		}
-		else if (starID == StarIDEnum.STAR_SAKABA1_1) __result = true; // stone statues
+		} else if (starID == StarIDEnum.STAR_SAKABA1_1) __result = true; // stone statues
 	}
 
 	private static bool IsStageMarkedClear(int stageId, int a, int b) {

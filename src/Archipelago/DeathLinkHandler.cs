@@ -15,8 +15,7 @@ public class DeathLinkHandler {
 	/// <summary>
 	/// instantiates our death link handler, sets up the hook for receiving death links, and enables death link if needed
 	/// </summary>
-	/// <param name="deathLinkService">The new DeathLinkService that our handler will use to send and
-	/// receive death links</param>
+	/// <param name="deathLinkService">The new DeathLinkService that our handler will use to send and receive death links</param>
 	/// <param name="enableDeathLink">Whether we should enable death link or not on startup</param>
 	public DeathLinkHandler(DeathLinkService deathLinkService, string name, bool enableDeathLink = false) {
 		service = deathLinkService;
@@ -49,7 +48,7 @@ public class DeathLinkHandler {
 	private void DeathLinkReceived(DeathLink deathLink) {
 		deathLinks.Enqueue(deathLink);
 
-		Plugin.Logger.LogInfo("Queing deathlink: " + (deathLink.Cause.IsNullOrWhiteSpace() ? $"{deathLink.Source} died" : deathLink.Cause));
+		Plugin.logger.LogInfo("Queuing deathlink: " + (deathLink.Cause.IsNullOrWhiteSpace() ? $"{deathLink.Source} died" : deathLink.Cause));
 	}
 
 	/// <summary>
@@ -65,9 +64,9 @@ public class DeathLinkHandler {
 			string cause = "Triggering deathlink: " + (deathLink.Cause.IsNullOrWhiteSpace() ? $"{deathLink.Source} died" : deathLink.Cause);
 
 			man.EndGame(true);
-			Plugin.Logger.LogInfo(cause);
+			Plugin.logger.LogInfo(cause);
 		} catch (Exception e) {
-			Plugin.Logger.LogError(e);
+			Plugin.logger.LogError(e);
 		}
 	}
 
@@ -87,14 +86,14 @@ public class DeathLinkHandler {
 		try {
 			if (!deathLinkEnabled) return;
 
-			Plugin.Logger.LogMessage("sharing your death...");
+			Plugin.logger.LogMessage("sharing your death...");
 
 			// add the cause here
-			var linkToSend = new DeathLink(slotName);
+			DeathLink linkToSend = new(slotName);
 
 			service.SendDeathLink(linkToSend);
 		} catch (Exception e) {
-			Plugin.Logger.LogError(e);
+			Plugin.logger.LogError(e);
 		}
 	}
 }

@@ -21,7 +21,7 @@ public class FogTrap {
 			if (!manager.fogController.fog || RenderSettings.fogColor != FOG_COLOR) {
 				fogStart = manager.Cam.CameraPosition.magnitude * 0.5f;
 				fogEnd = fogStart * 100f;
-				
+
 				manager.fogController.fog = true;
 
 				RenderSettings.fog = true;

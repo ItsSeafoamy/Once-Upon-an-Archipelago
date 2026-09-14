@@ -17,10 +17,9 @@ namespace OnceUponAnArchipelago;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public class Plugin : BasePlugin {
-	internal static ManualLogSource Logger;
+	internal static ManualLogSource logger;
 
 	public static ArchipelagoClient archipelagoClient;
-	public static TextMeshProUGUI apConnectionUI;
 
 	public static TextMeshProUGUI planetsText;
 	public static Sprite clearSprite;
@@ -67,7 +66,7 @@ public class Plugin : BasePlugin {
 
 	public override void Load() {
 		// Plugin startup logic
-		Logger = Log;
+		logger = Log;
 
 		// load config
 		ConfigEntry<string> uri = Config.Bind("Archipelago", "serverAddress", "archipelago.gg:12345", "The url to connect to, including port");
@@ -75,25 +74,7 @@ public class Plugin : BasePlugin {
 		ConfigEntry<string> password = Config.Bind("Archipelago", "password", "", "The server password. Leave blank if there is none");
 
 		// set up UI stuff
-		GameObject canvasObject = new("Archipelago");
-		GameObject.DontDestroyOnLoad(canvasObject);
-		canvasObject.hideFlags |= HideFlags.HideAndDontSave;
-		canvasObject.layer = 5;
-		canvasObject.transform.position = new Vector3(0, 0, 1);
-
-		Canvas canvas = canvasObject.AddComponent<Canvas>();
-		canvas.renderMode = RenderMode.ScreenSpaceCamera;
-		canvas.referencePixelsPerUnit = 100;
-		canvas.sortingOrder = 20_000;
-		canvas.overrideSorting = true;
-
-		CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
-		scaler.referenceResolution = new Vector2(1920, 1080);
-		scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
-
-		apConnectionUI = canvasObject.AddComponent<TextMeshProUGUI>();
-		apConnectionUI.color = Color.green;
-		SetApConnectionText("<red>Archipelago: Not Connected</red>");
+		UIManager.Init();
 
 		// connect to archipelago
 		archipelagoClient = new ArchipelagoClient();
@@ -115,9 +96,7 @@ public class Plugin : BasePlugin {
 
 		Il2CppSystem.Collections.Generic.List<MonoInfo> monoCategoryTable = CollectionAssetTable.Instance.MonoCategoryTable();
 
-		for (int catIdx = 0; catIdx < monoCategoryTable.Count; catIdx++) {
-			MonoInfo category = monoCategoryTable[catIdx];
-
+		foreach (MonoInfo category in monoCategoryTable) {
 			foreach (MonoInfo.Param obj in category.list) {
 				int id;
 				if (obj.SyncMonoID != -1) {
@@ -132,11 +111,7 @@ public class Plugin : BasePlugin {
 			}
 		}
 
-		Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
-	}
-
-	public static void SetApConnectionText(string text) {
-		apConnectionUI?.SetText(text);
+		logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
 	}
 
 	public static void SetPlanetsText(int planetsOwned, int planetsNeeded) {
@@ -146,7 +121,7 @@ public class Plugin : BasePlugin {
 	public static void SaveArchipelagoData() {
 		string path = ARCHIPELAGO_SAVE_FOLDER + SaveDataController.Instance.CurrentUseSlot + ".txt";
 
-		Logger.LogInfo($"Saving Archipelago data to {path}");
+		logger.LogInfo($"Saving Archipelago data to {path}");
 
 		File.WriteAllLines(path, [
 			"seed=" + ArchipelagoClient.session.RoomState.Seed,
@@ -159,7 +134,7 @@ public class Plugin : BasePlugin {
 	public static void LoadArchipelagoData() {
 		string path = ARCHIPELAGO_SAVE_FOLDER + SaveDataController.Instance.CurrentUseSlot + ".txt";
 
-		Logger.LogInfo($"Loading Archipelago data from {path}");
+		logger.LogInfo($"Loading Archipelago data from {path}");
 
 		usedItemCount = 0;
 		itemsToSkip = 0;
@@ -194,13 +169,13 @@ public class Plugin : BasePlugin {
 					}
 				}
 			});
-		} 
+		}
 	}
 
 	public static void DeleteArchipelagoData() {
 		string path = ARCHIPELAGO_SAVE_FOLDER + SaveDataController.Instance.CurrentUseSlot + ".txt";
 
-		Logger.LogInfo($"Deleting Archipelago data at {path}");
+		logger.LogInfo($"Deleting Archipelago data at {path}");
 
 		if (File.Exists(path)) {
 			File.Delete(path);
@@ -223,7 +198,7 @@ public class Plugin : BasePlugin {
 		data._progression = 34; // how far along the story you are. not sure if this is actually needed anymore
 		data.Big1Start1st = true; // allows leaving ALAP1 on first playthrough
 		data._firstSelectHiroba = true; // sets the SS Prince as having already been repaired
-		data._stageIndex = (int)SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
+		data._stageIndex = (int) SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
 		data.FirstGotoSelectEmaki = 1; // makes the S.S. Prince menu option available without needing to go there first
 		data.SetPalyMovie(true, 33); // sets the tutorial movie as having already been played so we can skip the tutorial
 

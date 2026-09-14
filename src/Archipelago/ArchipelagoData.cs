@@ -42,12 +42,4 @@ public class ArchipelagoData {
 		slotData = roomSlotData;
 		seed = roomSeed;
 	}
-
-	/// <summary>
-	/// returns the object as a json string to be written to a file which you can then load
-	/// </summary>
-	/// <returns></returns>
-/*	public override string ToString() {
-		return JsonConvert.SerializeObject(this);
-	}*/
 }

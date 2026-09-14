@@ -1,23 +1,19 @@
 ﻿using App.KatamariSin;
-using BepInEx;
 using HarmonyLib;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace OnceUponAnArchipelago.Patcher;
 
 public class InGamePatcher {
 
-	private static bool usingMushroom = false;
-	private static float spiderTimer = 0f;
-
-	private static int collectionsanityCount = 0;
+	private static bool usingMushroom;
+	private static float spiderTimer;
 
 	// detects crown collection
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameCollectiveItem), nameof(MainGameCollectiveItem.Collected))]
 	private static void MainGameCollectiveItem_Collected_Postfix(MainGameCollectiveItem __instance) {
 		if (Plugin.randomizeCrowns) {
-			Plugin.Logger.LogInfo($"Collected Crown: {__instance.name} ({__instance.CollectID})");
+			Plugin.logger.LogInfo($"Collected Crown: {__instance.name} ({__instance.CollectID})");
 
 			Plugin.archipelagoClient.SendCheck(__instance.CollectID + Plugin.CROWN_ID_OFFSET);
 		}
@@ -27,7 +23,7 @@ public class InGamePatcher {
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.RequestPresentMessage))]
 	private static void MainGameManager_RequestPresentMessage_Postfix(MainGameManager __instance) {
 		if (Plugin.randomizePresents) {
-			Plugin.Logger.LogInfo($"Collected Present: {GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID}");
+			Plugin.logger.LogInfo($"Collected Present: {GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID}");
 
 			Plugin.archipelagoClient.SendCheck(GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID + Plugin.PRESENT_ID_OFFSET);
 		}
@@ -37,7 +33,7 @@ public class InGamePatcher {
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.SetItokoRolled))]
 	private static void MainGameManager_SetItokoRolled_Postfix(int ItokoID) {
 		if (Plugin.randomizeCousins) {
-			Plugin.Logger.LogInfo($"Collected cousin: {ItokoID}");
+			Plugin.logger.LogInfo($"Collected cousin: {ItokoID}");
 
 			Plugin.archipelagoClient.SendCheck(ItokoID + Plugin.COUSIN_ID_OFFSET);
 		}
@@ -80,7 +76,7 @@ public class InGamePatcher {
 	// detects stage clear
 	[HarmonyPostfix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.MakeStageCleared))]
 	private static void MainGameManager_MakeStageCleared_Postfix(MainGameManager __instance) {
-		Plugin.Logger.LogInfo($"Cleared stage: {__instance.StageIdx}");
+		Plugin.logger.LogInfo($"Cleared stage: {__instance.StageIdx}");
 
 		if (__instance.StageIdx == 51) {
 			Plugin.archipelagoClient.Goal();
@@ -110,18 +106,18 @@ public class InGamePatcher {
 	private static void MainGameManager_Update_Postfix(MainGameManager __instance) {
 		// make sure we're in a safe state to mess with
 		if (__instance.StageIdx == 20 || __instance.StageIdx == 51
-			|| __instance.IsInDebug
-			|| __instance.IsInDemo
-			|| __instance._isInPause
-			|| __instance.IsInConfirm
-			|| __instance.MainUI.IsTipsActive()
-			|| !__instance.isStageLoaded
-			|| __instance.isStageLoading
-			|| !__instance.IsPlayerInitiated
-			|| __instance.IsInDemoCamera
-			|| __instance._isInDemoFade
-			|| __instance.IsInRestartWait
-		) return;
+		                              || __instance.IsInDebug
+		                              || __instance.IsInDemo
+		                              || __instance._isInPause
+		                              || __instance.IsInConfirm
+		                              || __instance.MainUI.IsTipsActive()
+		                              || !__instance.isStageLoaded
+		                              || __instance.isStageLoading
+		                              || !__instance.IsPlayerInitiated
+		                              || __instance.IsInDemoCamera
+		                              || __instance._isInDemoFade
+		                              || __instance.IsInRestartWait
+		   ) return;
 
 		// Handle items
 		if (__instance.GetInventoryItem() == eInstageItemType.NoItem && __instance._itemEffectTimer <= 0f && Plugin.items.Count > 0) {
@@ -154,12 +150,12 @@ public class InGamePatcher {
 			if (Plugin.trapsToSkip > 0) {
 				Plugin.trapsToSkip--;
 			} else {
-				if (trapId == (int)eInstageItemType.Spider) {
+				if (trapId == (int) eInstageItemType.Spider) {
 					__instance.RequestSpiderDamageDemo_Start();
 					spiderTimer = 10f;
-				} else if (trapId == (int)eInstageItemType.Tarai) { // washpan
+				} else if (trapId == (int) eInstageItemType.Tarai) { // washpan
 					__instance.RequestTaraiDamageDemo();
-					__instance.DebugSubKatamariSize((int)(__instance.KatamariSize * 0.1f));
+					__instance.DebugSubKatamariSize((int) (__instance.KatamariSize * 0.1f));
 				} else if (trapId == 100) {
 					FogTrap.Activate();
 				}
@@ -182,11 +178,11 @@ public class InGamePatcher {
 	[HarmonyPrefix, HarmonyPatch(typeof(MainGameManager), nameof(MainGameManager.ActivateItemEffect))]
 	private static void MainGameManager_ActivateItemEffect_Prefix(MainGameManager __instance) {
 		if (__instance.GetInventoryItem() == eInstageItemType.Mushroom) {
-			__instance.AddKatamariSize((int)(__instance.KatamariSize * 0.1f));
+			__instance.AddKatamariSize((int) (__instance.KatamariSize * 0.1f));
 
 			usingMushroom = true;
 		} else if (__instance.GetInventoryItem() == eInstageItemType.SP_Mushroom) {
-			__instance.AddKatamariSize((int)(__instance.KatamariSize * 0.2f));
+			__instance.AddKatamariSize((int) (__instance.KatamariSize * 0.2f));
 
 			usingMushroom = true;
 		}
