@@ -55,4 +55,13 @@ public class MiscPatcher {
 			Plugin.SetInitialFlags();
 		}
 	}
+
+	// lets you leave the s.s. prince (and click other things) without needing to click on the cousin customizer first
+	// this vanilla behaviour confused so many people
+	[HarmonyPostfix, HarmonyPatch(typeof(OrderToBehavior), nameof(OrderToBehavior.Start))]
+	private static void OrderToBehaviour_Start_Postfix(OrderToBehavior __instance) {
+		__instance.transform.FindChild("EventCollider")?.gameObject.SetActive(true); // lemme click it
+		__instance.transform.FindChild("HUKIDASI_Y_CMAP")?.gameObject.SetActive(true); // lemme see it
+		__instance.transform.FindChild("HUKIDASI_P_CMAP")?.gameObject.SetActive(true); // lemme see it but in pink
+	}
 }
