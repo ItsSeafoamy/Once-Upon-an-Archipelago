@@ -45,22 +45,12 @@ public class Plugin : BasePlugin {
 	public static bool randomizeCousins;
 	public static bool randomizePresents;
 	public static bool randomizeCrowns;
+	public static bool meteorChecks;
 	public static bool skipTutorial;
 	public static int collectionsanityMode;
 
 	public static Dictionary<int, List<int>> fansToStages = [];
 	public static Dictionary<int, string> levelNames = [];
-
-	public const int LEVEL_ID_OFFSET = 0;
-	public const int COUSIN_ID_OFFSET = 1_000;
-	public const int CROWN_ID_OFFSET = 2_000;
-	public const int PRESENT_ID_OFFSET = 3_000;
-	public const int PLANET_ID_OFFSET = 4_000;
-	public const int FILLER_ID_OFFSET = 5_000;
-	public const int FREEBIE_ID_OFFSET = 6_000;
-	public const int TRAP_ID_OFFSET = 7_000;
-	public const int COLLECTION_INDIVIDUAL_ID_OFFSET = 100_000;
-	public const int COLLECTION_MILESTONE_ID_OFFSET = 200_000;
 
 	private static string ARCHIPELAGO_SAVE_FOLDER = Application.dataPath + "/../ArchipelagoData/";
 

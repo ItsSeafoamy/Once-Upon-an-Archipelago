@@ -15,7 +15,7 @@ public class InGamePatcher {
 		if (Plugin.randomizeCrowns) {
 			Plugin.logger.LogInfo($"Collected Crown: {__instance.name} ({__instance.CollectID})");
 
-			Plugin.archipelagoClient.SendCheck(__instance.CollectID + Plugin.CROWN_ID_OFFSET);
+			Plugin.archipelagoClient.SendCheck(__instance.CollectID + Offsets.CROWNS);
 		}
 	}
 
@@ -25,7 +25,7 @@ public class InGamePatcher {
 		if (Plugin.randomizePresents) {
 			Plugin.logger.LogInfo($"Collected Present: {GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID}");
 
-			Plugin.archipelagoClient.SendCheck(GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID + Plugin.PRESENT_ID_OFFSET);
+			Plugin.archipelagoClient.SendCheck(GlobalManager.instance.AllStageData.list[__instance._stageIdx].PresentID + Offsets.PRESENTS);
 		}
 	}
 
@@ -35,7 +35,7 @@ public class InGamePatcher {
 		if (Plugin.randomizeCousins) {
 			Plugin.logger.LogInfo($"Collected cousin: {ItokoID}");
 
-			Plugin.archipelagoClient.SendCheck(ItokoID + Plugin.COUSIN_ID_OFFSET);
+			Plugin.archipelagoClient.SendCheck(ItokoID + Offsets.COUSINS);
 		}
 	}
 
@@ -54,14 +54,14 @@ public class InGamePatcher {
 			}
 
 			if (Plugin.collectionsanityMode == 1) {
-				Plugin.archipelagoClient.SendCheck(id + Plugin.COLLECTION_INDIVIDUAL_ID_OFFSET);
+				Plugin.archipelagoClient.SendCheck(id + Offsets.COLLECTION_INDIVIDUAL);
 			} else if (Plugin.collectionsanityData.ContainsKey(id)) {
 				if (!Plugin.collectionsanityData[id]) {
 					Plugin.collectionsanityData[id] = true;
 
 					Plugin.collectionsanityCount++;
 
-					Plugin.archipelagoClient.SendCheck(Plugin.collectionsanityCount + Plugin.COLLECTION_MILESTONE_ID_OFFSET);
+					Plugin.archipelagoClient.SendCheck(Plugin.collectionsanityCount + Offsets.COLLECTION_MILESTONE);
 				}
 			}
 		}
@@ -81,10 +81,13 @@ public class InGamePatcher {
 		if (__instance.StageIdx == 51) {
 			Plugin.archipelagoClient.Goal();
 		} else {
-			Plugin.archipelagoClient.SendCheck(__instance.StageIdx + Plugin.LEVEL_ID_OFFSET);
+			Plugin.archipelagoClient.SendCheck(__instance.StageIdx + Offsets.LEVELS);
 
 			if (Plugin.planetsOnClear) {
-				Plugin.archipelagoClient.SendCheck(__instance.StageIdx + Plugin.PLANET_ID_OFFSET);
+				Plugin.archipelagoClient.SendCheck(__instance.StageIdx + Offsets.PLANETS);
+			}
+			if (Plugin.meteorChecks && __instance.CheckShootingStar()) {
+				Plugin.archipelagoClient.SendCheck(__instance.StageIdx + Offsets.METEORS);
 			}
 		}
 	}
@@ -106,18 +109,18 @@ public class InGamePatcher {
 	private static void MainGameManager_Update_Postfix(MainGameManager __instance) {
 		// make sure we're in a safe state to mess with
 		if (__instance.StageIdx == 20 || __instance.StageIdx == 51
-		                              || __instance.IsInDebug
-		                              || __instance.IsInDemo
-		                              || __instance._isInPause
-		                              || __instance.IsInConfirm
-		                              || __instance.MainUI.IsTipsActive()
-		                              || !__instance.isStageLoaded
-		                              || __instance.isStageLoading
-		                              || !__instance.IsPlayerInitiated
-		                              || __instance.IsInDemoCamera
-		                              || __instance._isInDemoFade
-		                              || __instance.IsInRestartWait
-		   ) return;
+			|| __instance.IsInDebug
+			|| __instance.IsInDemo
+			|| __instance._isInPause
+			|| __instance.IsInConfirm
+			|| __instance.MainUI.IsTipsActive()
+			|| !__instance.isStageLoaded
+			|| __instance.isStageLoading
+			|| !__instance.IsPlayerInitiated
+			|| __instance.IsInDemoCamera
+			|| __instance._isInDemoFade
+			|| __instance.IsInRestartWait
+		) return;
 
 		// Handle items
 		if (__instance.GetInventoryItem() == eInstageItemType.NoItem && __instance._itemEffectTimer <= 0f && Plugin.items.Count > 0) {

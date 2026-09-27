@@ -27,8 +27,7 @@ public class ArchipelagoClient {
 
 	/// <summary>
 	/// call to connect to an Archipelago session. Connection info should already be set up on ServerData
-	/// </summary>§
-	/// <returns></returns>
+	/// </summary>
 	public void Connect() {
 		if (authenticated || attemptingConnection) return;
 
@@ -104,16 +103,13 @@ public class ArchipelagoClient {
 
 				Plugin.logger.LogMessage(outText);
 
-				UIManager.SetApConnectionText($"Archipelago: Connected");
-			} else if ((long) slotData["mod_version"] == 0) {
+				UIManager.SetApConnectionText("Archipelago: Connected");
+			} else if ((long) slotData["mod_version"] is 0 or 1) { // 0.3.0 - 0.4.0
 				deathLinkHandler = new(session.CreateDeathLinkService(), serverData.SlotName, (bool) slotData["death_link"]);
 				session.Locations.CompleteLocationChecksAsync([.. serverData.CheckedLocations]);
 				outText = $"Successfully connected to {serverData.Uri} as {serverData.SlotName}!";
-
-				long planetCount = (long) slotData["number_of_planets"];
-				long planetRequirement = (long) slotData["planet_requirement"];
-
-				Plugin.planetsNeeded = (int) planetRequirement;
+				
+				Plugin.planetsNeeded = (int) (long) slotData["planet_requirement"];
 				Plugin.planetsOnClear = (bool) slotData["planets_on_clear"];
 				Plugin.randomizeCousins = (bool) slotData["randomize_cousins"];
 				Plugin.randomizePresents = (bool) slotData["randomize_presents"];
@@ -121,10 +117,14 @@ public class ArchipelagoClient {
 				Plugin.skipTutorial = (bool) slotData["skip_tutorial"];
 				Plugin.collectionsanityMode = (int) (long) slotData["collectionsanity"];
 
+				if ((long) slotData["mod_version"] == 1) { // 0.4.0
+					Plugin.meteorChecks = (bool) slotData["meteor_checks"];
+				}
+
 				Plugin.logger.LogMessage(outText);
 
-				UIManager.SetApConnectionText($"Archipelago: Connected");
-			} else if ((long) slotData["mod_version"] > 0) {
+				UIManager.SetApConnectionText("Archipelago: Connected");
+			} else if ((long) slotData["mod_version"] > 1) {
 				// apworld is too new
 
 				string requiredVersion = (string) slotData["world_version"];
@@ -195,26 +195,26 @@ public class ArchipelagoClient {
 		int id = (int) receivedItem.ItemId;
 		Plugin.logger.LogInfo($"Received item: {receivedItem.ItemName} ({id}) from {receivedItem.Player.Name}");
 
-		if (id >= Plugin.TRAP_ID_OFFSET) {
-			Plugin.traps.Enqueue(id - Plugin.TRAP_ID_OFFSET);
-		} else if (id >= Plugin.FREEBIE_ID_OFFSET) {
-			Plugin.items.Enqueue((eInstageItemType) (id - Plugin.FREEBIE_ID_OFFSET));
-		} else if (id >= Plugin.FILLER_ID_OFFSET) {
+		if (id >= Offsets.TRAPS) {
+			Plugin.traps.Enqueue(id - Offsets.TRAPS);
+		} else if (id >= Offsets.FREEBIES) {
+			Plugin.items.Enqueue((eInstageItemType) (id - Offsets.FREEBIES));
+		} else if (id >= Offsets.FILLER) {
 			return;
-		} else if (id >= Plugin.PLANET_ID_OFFSET) {
+		} else if (id >= Offsets.PLANETS) {
 			Plugin.planets++;
 			Plugin.SetPlanetsText(Plugin.planets, Plugin.planetsNeeded);
 
 			if (Plugin.planets >= Plugin.planetsNeeded) {
 				Plugin.levels.Add(51); // final level (That Hole...)
 			}
-		} else if (id >= Plugin.PRESENT_ID_OFFSET) {
-			Plugin.presents.Add(id - Plugin.PRESENT_ID_OFFSET);
-		} else if (id >= Plugin.COUSIN_ID_OFFSET) {
-			Plugin.cousins.Add(id - Plugin.COUSIN_ID_OFFSET);
-		} else if (id >= Plugin.LEVEL_ID_OFFSET) {
-			Plugin.levels.Add(id - Plugin.LEVEL_ID_OFFSET);
-			Plugin.levelNames[id - Plugin.LEVEL_ID_OFFSET] = receivedItem.ItemName;
+		} else if (id >= Offsets.PRESENTS) {
+			Plugin.presents.Add(id - Offsets.PRESENTS);
+		} else if (id >= Offsets.COUSINS) {
+			Plugin.cousins.Add(id - Offsets.COUSINS);
+		} else if (id >= Offsets.LEVELS) {
+			Plugin.levels.Add(id - Offsets.LEVELS);
+			Plugin.levelNames[id - Offsets.LEVELS] = receivedItem.ItemName;
 		}
 	}
 

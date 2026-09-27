@@ -58,7 +58,7 @@ public class UIPatcher {
 			for (int i = 0; i < 3; i++) {
 				int crownId = glb.GetStageCollective(selectedStage)[i];
 
-				__instance._collectedIcons[i].enabled = checks.Contains(crownId + Plugin.CROWN_ID_OFFSET);
+				__instance._collectedIcons[i].enabled = checks.Contains(crownId + Offsets.CROWNS);
 			}
 		}
 
@@ -73,7 +73,7 @@ public class UIPatcher {
 				__instance._talkPresent._present.SetActive(true);
 				Image image = __instance._talkPresent._present.GetComponent<Image>();
 
-				if (checks.Contains(presentId + Plugin.PRESENT_ID_OFFSET)) {
+				if (checks.Contains(presentId + Offsets.PRESENTS)) {
 					image.color = Color.white;
 				} else {
 					image.color = new Color(1, 1, 1, 0.5f);
@@ -93,7 +93,7 @@ public class UIPatcher {
 					itokoIcon._icon[i].SetActive(true);
 					Image image = itokoIcon._icon[i].GetComponent<Image>();
 
-					if (checks.Contains(cousins[i] + Plugin.COUSIN_ID_OFFSET)) {
+					if (checks.Contains(cousins[i] + Offsets.COUSINS)) {
 						Sprite sprite = SubjectListData.instance.GetCustomSpritesData(cousins[i] + 1);
 						image.sprite = sprite;
 					} else {
