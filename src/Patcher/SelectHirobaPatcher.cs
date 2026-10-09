@@ -225,6 +225,10 @@ public class SelectHirobaPatcher {
 		else if (stageId is 34 or 36) __result = IsStageMarkedClear(stageId, 34, 36);
 		else if (stageId is 53 or 54) __result = IsStageMarkedClear(stageId, 53, 54);
 		else if (stageId is 56 or 61) __result = IsStageMarkedClear(stageId, 56, 61);
+		else if (stageId is 69 or 71) __result = IsStageMarkedClear(stageId, 69, 71);
+		else if (stageId is 63 or 64) __result = IsStageMarkedClear(stageId, 63, 64);
+		else if (stageId is 65 or 72) __result = IsStageMarkedClear(stageId, 65, 72);
+		else if (stageId is 70 or 66) __result = IsStageMarkedClear(stageId, 70, 66);
 		else if (stageId is 26 or 29 or 30) {
 			int owned = 0;
 			if (Plugin.levels.Contains(26)) owned++;
@@ -250,7 +254,7 @@ public class SelectHirobaPatcher {
 	}
 
 	// sets a fan message for ALAP1
-	// in vanilla, it's impossible to not have AFAP1, so no message for ALAP1 exists, which createes a null reference
+	// in vanilla, it's impossible to not have AFAP1, so no message for ALAP1 exists, which creates a null reference
 	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaFanMessage), nameof(SelectHirobaFanMessage.SetMessage))]
 	private static void SelectHirobaFanMessage_SetMessage_Postfix(SelectHirobaFanMessage __instance, string messageID) {
 		if (messageID == "FAN_M02_1_") {
@@ -281,9 +285,17 @@ public class SelectHirobaPatcher {
 		return false;
 	}
 
-	// loads the correct stage
+	// loads the correct stage (base game)
 	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaKingController), nameof(SelectHirobaKingController.Update))]
 	private static void SelectHirobaKingController_Update_Postfix(SelectHirobaKingController __instance) {
+		if (__instance._stages != null && Plugin.fansToStages.ContainsKey(__instance._myStageID)) {
+			__instance._stages = Plugin.fansToStages[__instance._myStageID].ToArray();
+		}
+	}
+	
+	// loads the correct stage (DLC)
+	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaAAKingController), nameof(SelectHirobaAAKingController.Update))]
+	private static void SelectHirobaAAKingController_Update_Postfix(SelectHirobaAAKingController __instance) {
 		if (__instance._stages != null && Plugin.fansToStages.ContainsKey(__instance._myStageID)) {
 			__instance._stages = Plugin.fansToStages[__instance._myStageID].ToArray();
 		}

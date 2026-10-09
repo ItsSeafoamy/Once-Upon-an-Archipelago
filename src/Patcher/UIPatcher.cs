@@ -13,12 +13,12 @@ public class UIPatcher {
 	// UI
 	[HarmonyPrefix, HarmonyPatch(typeof(UITextSetter), nameof(UITextSetter.SetText), argumentTypes: [typeof(string)])]
 	private static bool UITextSetter_SetText_Prefix(UITextSetter __instance, ref string text) {
-		if (__instance.transform.parent.name == "Caption") { // stage names
+		if (__instance.transform.parent.name is "Caption" or "StageName") { // stage names
 			Transform transform = __instance.transform;
 			while (transform.parent != null) {
 				transform = transform.parent;
 
-				if (transform.name == "CommonStageInfo") {
+				if (transform.name is "CommonStageInfo" or "AASelectDisplay") {
 					SelectHirabaTalkOptionController controller = transform.parent.GetComponent<SelectHirabaTalkOptionController>();
 					if (controller != null) {
 						int stageId = controller._idStages[0];
