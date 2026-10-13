@@ -49,42 +49,68 @@ public class UIPatcher {
 	private static void SelectHirabaTalkOptionController_ActiveTalkUI_Postfix(SelectHirabaTalkOptionController __instance) {
 		if (__instance.StageID == 999) return;
 
-		int selectedStage = Plugin.fansToStages[__instance._idStages[0]][__instance.NowPageIndex];
+		ShowPreLevelDetails(__instance);
+	}
+
+	// RLH pre level details
+	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirabaTalkOptionController), nameof(SelectHirabaTalkOptionController.ActiveTalkAASelectUI))]
+	private static void SelectHirabaTalkOptionController_ActiveTalkAASelectUI_Postfix(SelectHirabaTalkOptionController __instance) {
+		if (__instance.StageID == 999) return;
+		
+		ShowPreLevelDetails(__instance);
+	}
+
+	private static void ShowPreLevelDetails(SelectHirabaTalkOptionController controller) {
+		int selectedStage = Plugin.fansToStages[controller._idStages[0]][controller.NowPageIndex];
 		GlobalManager glb = GlobalManager.Instance;
 		List<long> checks = ArchipelagoClient.serverData.CheckedLocations;
 
-		// crowns
-		if (Plugin.randomizeCrowns) {
-			for (int i = 0; i < 3; i++) {
-				int crownId = glb.GetStageCollective(selectedStage)[i];
+		// base game levels
+		if (!controller._aaMode) {
+			// crowns
+			if (Plugin.randomizeCrowns) {
+				for (int i = 0; i < 3; i++) {
+					int crownId = glb.GetStageCollective(selectedStage)[i];
 
-				__instance._collectedIcons[i].enabled = checks.Contains(crownId + Offsets.CROWNS);
-			}
-		}
-
-		// presents
-		if (Plugin.randomizePresents) {
-			int presentId = glb.GetStagePresent(selectedStage);
-
-			if (presentId == -1) {
-				__instance._talkPresent._present.SetActive(false);
-
-			} else {
-				__instance._talkPresent._present.SetActive(true);
-				Image image = __instance._talkPresent._present.GetComponent<Image>();
-
-				if (checks.Contains(presentId + Offsets.PRESENTS)) {
-					image.color = Color.white;
-				} else {
-					image.color = new Color(1, 1, 1, 0.5f);
+					controller._collectedIcons[i].enabled = checks.Contains(crownId + Offsets.CROWNS);
 				}
 			}
+
+			// presents
+			if (Plugin.randomizePresents) {
+				int presentId = glb.GetStagePresent(selectedStage);
+
+				if (presentId == -1) {
+					controller._talkPresent._present.SetActive(false);
+				} else {
+					controller._talkPresent._present.SetActive(true);
+					Image image = controller._talkPresent._present.GetComponent<Image>();
+
+					if (checks.Contains(presentId + Offsets.PRESENTS)) {
+						image.color = Color.white;
+					} else {
+						image.color = new Color(1, 1, 1, 0.5f);
+					}
+				}
+			}
+		} else { // rlh levels
+			StarIDEnum star = SelectHirobaManager.CheckTargetStage(selectedStage);
+			controller._talkAADisplay.SetAAThumbnail(star);
 		}
 
 		// cousins
 		if (Plugin.randomizeCousins) {
 			int[] cousins = glb.GetStageOujiItoko(selectedStage);
-			SelectHirobaTalkItokoIcon itokoIcon = __instance._itokoIcon;
+			
+			SelectHirobaTalkItokoIcon itokoIcon = controller._itokoIcon;
+
+			// if in rlh, find correct cousin object
+			// rlh levels only have at most 1 cousin, so we dont have to worry about the other two spots
+			if (controller._aaMode) {
+				itokoIcon._icon[0] = controller.transform.FindChild("AASelectDisplay").GetChild(0).GetChild(0)
+					.FindChild("TV").FindChild("Foundation").FindChild("Body").FindChild("Item_5").FindChild("Mate_1")
+					.gameObject;
+			}
 
 			for (int i = 0; i < 3; i++) {
 				if (i >= cousins.Length) {
