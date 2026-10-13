@@ -204,6 +204,11 @@ public class Plugin : BasePlugin {
 			data._messageEvent[i] = true;
 		}
 
+		// stops the kings from yapping at you for 7 years when you first start an ap
+		for (int i = 0; i < data.tips_get.Count; i++) {
+			data.SetTipsGetFlag(i, true);
+		}
+
 		DeleteArchipelagoData();
 	}
 }
