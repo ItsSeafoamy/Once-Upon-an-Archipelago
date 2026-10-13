@@ -191,6 +191,10 @@ public class Plugin : BasePlugin {
 		data._stageIndex = (int) SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
 		data.FirstGotoSelectEmaki = 1; // makes the S.S. Prince menu option available without needing to go there first
 		data.SetPalyMovie(true, 33); // sets the tutorial movie as having already been played so we can skip the tutorial
+		data.FirstTelevisionTrans = true; // lemme go to the super stream immediately
+		data.FirstSutekiCollectionAA = 1; // lets you view the super stream collection immediately
+		data.FirstCharaCustom = true; // skip the forced cousin customizer
+		data.InitializeSpecificDataID(); // but still initialize it so it doesnt softlock if someone does want to use it
 
 		// marks all events as having already been done
 		// prevents the king forcing you to go into certain eras on a whim
