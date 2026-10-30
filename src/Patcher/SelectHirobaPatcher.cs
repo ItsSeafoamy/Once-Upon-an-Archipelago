@@ -10,6 +10,8 @@ namespace OnceUponAnArchipelago.Patcher;
 
 public class SelectHirobaPatcher {
 
+	private static bool loaded = false;
+
 	// Make all eras available
 	[HarmonyPostfix, HarmonyPatch(typeof(SelectMapController), nameof(SelectMapController.GetMapRelease))]
 	private static void SelectMapController_GetMapRelease_Postfix(ref bool __result, SelectHirobaEnum.Stage map) {
@@ -262,21 +264,26 @@ public class SelectHirobaPatcher {
 		}
 	}
 
-	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaController), nameof(SelectHirobaController.SelectHirobaObjectInit))]
-	private static void SelectHirobaController_SelectHirobaObjectInit_Postfix(SelectHirobaController __instance) {
-		// hide the hole from not having ALAP1/AFAP1
-		if (SelectHirobaManager.instance.GetMap == SelectHirobaEnum.Stage.EDO) {
-			GameObject obj = GameObject.Find("polySurface7");
-			GameObject.Instantiate(obj, new Vector3(33.3665f, -3.1888f, 5.4668f), Quaternion.identity, obj.transform.parent);
-		}
+	[HarmonyPostfix, HarmonyPatch(typeof(SelectHirobaController), nameof(SelectHirobaController.HirobaState))]
+	private static void SelectHirobaController_Start_Postfix(SelectHirobaController __instance) {
+		if (__instance._selectHirobaLoad._load == SelectHirobaLoad.Load.ISLOAD) {
+			loaded = false;
+		} else if (__instance._selectHirobaLoad._load == SelectHirobaLoad.Load.ENDLOAD && !loaded) {
+			if (SelectHirobaManager.instance.GetMap == SelectHirobaEnum.Stage.EDO) {
+				GameObject obj = GameObject.Find("polySurface7");
+				GameObject.Instantiate(obj, new Vector3(33.3665f, -3.1888f, 5.4668f), Quaternion.identity, obj.transform.parent);
+			}
 
-		GlobalSaveData.instance._isStoneEvent = true;
+			GlobalSaveData.instance._isStoneEvent = true;
 
-		// save stuff
-		if (Plugin.itemsToSkip == -1) {
-			Plugin.LoadArchipelagoData();
+			// save stuff
+			if (Plugin.itemsToSkip == -1) {
+				Plugin.LoadArchipelagoData();
+			}
+			Plugin.SaveArchipelagoData();
+
+			loaded = true;
 		}
-		Plugin.SaveArchipelagoData();
 	}
 
 	// Hide the vanilla "Unlock Conditions" that appears on locked levels
