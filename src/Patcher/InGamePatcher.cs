@@ -220,12 +220,6 @@ public class InGamePatcher {
 		}
 	}
 
-	// runs when the tutorial first plays
-	[HarmonyPostfix, HarmonyPatch(typeof(UITutorialManager), nameof(UITutorialManager.Start))]
-	private static void UITutorialManager_Start_Postfix(ref UITutorialManager __instance) {
-		Plugin.SetInitialFlags();
-	}
-
 	[HarmonyPrefix, HarmonyPatch(typeof(MainGameMonoBase), nameof(MainGameMonoBase.CheckStarState))]
 	private static bool MainGameMonoBase_CheckStarState_Prefix(ref MainGameMonoBase __instance) {
 		if (__instance.MonoID < 3750) {

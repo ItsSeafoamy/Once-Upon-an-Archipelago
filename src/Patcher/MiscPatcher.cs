@@ -49,10 +49,16 @@ public class MiscPatcher {
 		GlobalManager.instance._nowCharacterID = Plugin.cousins[0];
 		GlobalSaveData.instance._selectPlayerId = Plugin.cousins[0];
 
-		if (__instance.NextSceneName == "SelectHirobaTutorialDemo" && Plugin.skipTutorial) {
-			__instance.NextSceneName = "SelectHiroba";
-
+		if (__instance.NextSceneName == "SelectHirobaTutorialDemo" && !Plugin.initialized) {
 			Plugin.SetInitialFlags();
+			
+			GlobalSaveData data = GlobalManager.instance.glbSave;
+			data._stageIndex = (int) SelectHirobaEnum.Stage.EDO; // makes the first era you go to Edo Japan
+
+			// skip the tutorial
+			if (Plugin.skipTutorial) {
+				__instance.NextSceneName = "SelectHiroba";
+			}
 		}
 	}
 }

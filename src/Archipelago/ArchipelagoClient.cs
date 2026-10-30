@@ -15,7 +15,7 @@ using LibCpp2IL;
 namespace OnceUponAnArchipelago.Archipelago;
 
 public class ArchipelagoClient {
-	public const string APVersion = "0.6.6";
+	public const string APVersion = "0.6.7";
 	private const string Game = "Once Upon a Katamari";
 
 	public static bool authenticated;

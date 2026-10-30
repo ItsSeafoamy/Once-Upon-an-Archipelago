@@ -24,6 +24,8 @@ public class Plugin : BasePlugin {
 	public static TextMeshProUGUI planetsText;
 	public static Sprite clearSprite;
 
+	public static bool initialized;
+
 	public static List<int> levels = [];
 	public static List<int> cousins = [];
 	public static List<int> presents = [];
@@ -183,12 +185,13 @@ public class Plugin : BasePlugin {
 	}
 
 	public static void SetInitialFlags() {
+		if (initialized) return;
+		
 		GlobalSaveData data = GlobalManager.instance.glbSave;
 
 		data._progression = 34; // how far along the story you are. not sure if this is actually needed anymore
 		data.Big1Start1st = true; // allows leaving ALAP1 on first playthrough
 		data._firstSelectHiroba = true; // sets the SS Prince as having already been repaired
-		data._stageIndex = (int) SelectHirobaEnum.Stage.EDO; // makes the first era you go to after the tutorial Edo Japan
 		data.FirstGotoSelectEmaki = 1; // makes the S.S. Prince menu option available without needing to go there first
 		data.SetPalyMovie(true, 33); // sets the tutorial movie as having already been played so we can skip the tutorial
 		data.FirstTelevisionTrans = true; // lemme go to the super stream immediately
@@ -208,6 +211,8 @@ public class Plugin : BasePlugin {
 		for (int i = 0; i < data.tips_get.Count; i++) {
 			data.SetTipsGetFlag(i, true);
 		}
+		
+		initialized = true;
 
 		DeleteArchipelagoData();
 	}
