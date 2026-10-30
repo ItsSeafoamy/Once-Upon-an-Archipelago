@@ -151,7 +151,7 @@ public class Plugin : BasePlugin {
 					} else if (key == "traps") {
 						usedTrapCount = int.Parse(value);
 						trapsToSkip = usedTrapCount;
-					} else if (key == "collection") {
+					} else if (key == "collection" && !value.IsNullOrWhiteSpace()) {
 						IEnumerable<int> collected = parts[1].Split(",").Select(int.Parse);
 
 						foreach (int obj in collected) {
