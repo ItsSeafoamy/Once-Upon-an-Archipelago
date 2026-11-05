@@ -150,7 +150,7 @@ public class SelectHirobaPatcher {
 
 		Plugin.fansToStages[__instance.StageID] = reordered;
 
-		List<int> specialFans = [28, 32, 34, 40];
+		List<int> specialFans = [28, 32, 34, 40, 52];
 
 		foreach (int i in __instance.GetStagesID) {
 			if (stages.Contains(i)) {
